@@ -8,7 +8,7 @@ const availablePlugins = [
         name: "Theme Colors",
         command: "BG [COLOR] and Text [Color]",
         desc: "Allows you to change the color of the Background or Text.",
-        url: "https://github.com/padale323/Theme-Plugin/raw/refs/heads/main/plugin.js" 
+        url: "https://raw.githubusercontent.com/padale323/Theme-Plugin/refs/heads/main/plugin.js" 
     }
 ];
 
