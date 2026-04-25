@@ -9,6 +9,18 @@ const availablePlugins = [
         command: "BG [COLOR] and Text [Color]",
         desc: "Allows you to change the color of the Background or Text.",
         url: "https://raw.githubusercontent.com/padale323/Theme-Plugin/refs/heads/main/plugin.js" 
+    },
+    {
+        name: "Wikipedia",
+        command: "Wiki",
+        desc: "Allows you to get wikipedia summaries on topics.",
+        url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/Wiki/plugin.js" 
+    },
+    {
+        name: "public ip",
+        command: "ip",
+        desc: "Gets your Public Ip.",
+        url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/ip/plugin.js" 
     }
 ];
 
