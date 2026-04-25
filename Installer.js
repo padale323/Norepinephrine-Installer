@@ -5,22 +5,10 @@
 // 1. Easy to configure plugins array (Add your custom plugins here)
 const availablePlugins = [
     {
-        name: "IP Finder",
-        command: "ip",
-        desc: "Show public IP address via API.",
-        url: "https://example.com/plugins/ip.js" // Replace with real plugin URL
-    },
-    {
-        name: "Wikipedia Search",
-        command: "wiki",
-        desc: "Search wikipedia articles.",
-        url: "https://example.com/plugins/wiki.js" // Replace with real plugin URL
-    },
-    {
-        name: "People Search",
-        command: "peoplesearch",
-        desc: "Search individuals via external records.",
-        url: "https://example.com/plugins/peoplesearch.js" // Replace with real plugin URL
+        name: "Theme Colors",
+        command: "BG [COLOR] and Text [Color]",
+        desc: "Allows you to change the color of the Background or Text.",
+        url: "https://github.com/padale323/Theme-Plugin/raw/refs/heads/main/plugin.js" 
     }
 ];
 
