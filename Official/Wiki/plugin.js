@@ -1,6 +1,5 @@
 /**
- * Norepinephrine Wiki Plugin
- * Usage: wiki <search term>
+ * Norepinephrine Wiki Plugin (Individual IP Limits)
  */
 
 (function() {
@@ -13,39 +12,34 @@
         print(`Searching Wikipedia for: ${args}...`);
 
         try {
-            // Wikipedia REST API for summaries
-            const endpoint = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(args.replace(/ /g, '_'))}`;
+            const formattedTitle = encodeURIComponent(args.trim().replace(/ /g, '_'));
+            const endpoint = `https://en.wikipedia.org/api/rest_v1/page/summary/${formattedTitle}`;
             
+            // We use a clean fetch. By NOT setting a custom User-Agent, 
+            // the browser uses the user's local identity/IP for rate limiting.
             const response = await fetch(endpoint);
             
             if (!response.ok) {
-                if (response.status === 404) {
-                    throw new Error("Page not found. Try a more specific title.");
-                }
-                throw new Error("Could not connect to Wikipedia.");
+                if (response.status === 404) throw new Error("Topic not found.");
+                if (response.status === 429) throw new Error("You have reached Wikipedia's rate limit. Wait a minute.");
+                throw new Error(`Wikipedia error: ${response.status}`);
             }
 
             const data = await response.json();
 
-            // Format the output
             print("<hr>", true);
             print(`<b>${data.title}</b>`, true);
-            print(data.extract);
-            if (data.content_urls) {
-                print(`<a href="${data.content_urls.desktop.page}" target="_blank" style="color: #58a6ff;">Read more on Wikipedia</a>`, true);
+            print(data.extract || data.description || "No summary available.");
+
+            if (data.content_urls?.desktop) {
+                print(`<br><a href="${data.content_urls.desktop.page}" target="_blank" style="color: #58a6ff; text-decoration: none;">[ Read Full Article ]</a>`, true);
             }
             print("<hr>", true);
 
         } catch (error) {
-            print(`Wiki Error: ${error.message}`);
+            print(`<span class="danger-text">Wiki Error: ${error.message}</span>`, true);
         }
     };
 
-    window.registerCommand(
-        "wiki", 
-        "Search Wikipedia for a summary of a topic.", 
-        wikiHandler
-    );
-
-    console.log("Wiki plugin initialized. Type 'wiki [topic]' to use.");
+    window.registerCommand("wiki", "Search Wikipedia (Individual IP limits).", wikiHandler);
 })();
