@@ -1,8 +1,5 @@
+// Norepinephrine Plugin Installer 
 
-// Norepinephrine Plugin Installer Overlay
-// Replaces the terminal UI with an interactive plugin selection screen.
-
-// 1. Easy to configure plugins array (Add your custom plugins here)
 const availablePlugins = [
     {
         name: "Theme Colors",
@@ -17,55 +14,83 @@ const availablePlugins = [
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/Wiki/plugin.js" 
     },
     {
-        name: "public ip",
+        name: "Public IP",
         command: "ip",
         desc: "Gets your Public Ip.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/ip/plugin.js" 
     }
 ];
 
+// Configuration
+const colors = {
+    bg: "#0d1117",
+    surface: "#161b22",
+    border: "#30363d",
+    text: "#c9d1d9",
+    muted: "#8b949e",
+    primary: "#58a6ff",
+    danger: "#f78166"
+};
+
 // 2. Build the Installer UI
+document.body.style.backgroundColor = colors.bg;
+document.body.style.margin = "0";
+
 document.body.innerHTML = `
-    <div style="padding: 40px; color: #ffffff; font-family: 'Consolas', monospace; max-width: 800px; margin: 0 auto;">
-        <h1 style="color: #58a6ff; border-bottom: 1px solid #21262d; padding-bottom: 10px;">Norepinephrine Plugin Installer</h1>
-        <p style="color: #8b949e; margin-bottom: 30px;">Select official or trusted community plugins below to add them to your terminal permanently.</p>
+    <div style="padding: 32px; color: ${colors.text}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; max-width: 900px; margin: 0 auto;">
+        <div style="margin-bottom: 24px;">
+            <h1 style="font-size: 20px; font-weight: 600; margin: 0 0 8px 0;">Plugin Installer</h1>
+            <p style="font-size: 14px; color: ${colors.muted}; margin: 0;">Manage terminal extensions and community plugins.</p>
+        </div>
         
-        <div id="plugin-grid" style="display: grid; gap: 15px;"></div>
+        <div id="plugin-grid" style="border: 1px solid ${colors.border}; border-radius: 6px; overflow: hidden; background: ${colors.surface};">
+            <div style="display: grid; grid-template-columns: 1fr 140px; padding: 12px 16px; border-bottom: 1px solid ${colors.border}; background: ${colors.bg}; font-size: 12px; font-weight: 600; color: ${colors.muted}; text-transform: uppercase;">
+                <div>Plugin Information</div>
+                <div style="text-align: right;">Action</div>
+            </div>
+        </div>
         
-        <div style="margin-top: 40px; border-top: 1px solid #21262d; padding-top: 20px; display: flex; gap: 15px;">
-            <button id="exit-btn" style="background: #21262d; color: #ffffff; border: 1px solid #30363d; padding: 10px 20px; cursor: pointer; font-family: inherit; font-weight: bold; border-radius: 4px;">Restart & Return to Terminal</button>
+        <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
+            <button id="exit-btn" style="background: ${colors.surface}; color: ${colors.text}; border: 1px solid ${colors.border}; padding: 6px 12px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; border-radius: 6px;">
+                Restart & Return
+            </button>
         </div>
     </div>
 `;
 
 const grid = document.getElementById("plugin-grid");
 
-// 3. Render the plugin cards
+// 3. Render the plugin rows
 availablePlugins.forEach((plugin, index) => {
     let installedList = JSON.parse(localStorage.getItem("plugins") || "[]");
     const isInstalled = installedList.includes(plugin.url);
 
-    const card = document.createElement("div");
-    card.style.background = "#0d1117";
-    card.style.border = "1px solid #30363d";
-    card.style.padding = "20px";
-    card.style.borderRadius = "6px";
-    card.style.display = "flex";
-    card.style.justifyContent = "space-between";
-    card.style.alignItems = "center";
+    const row = document.createElement("div");
+    row.style.display = "grid";
+    row.style.gridTemplateColumns = "1fr 140px";
+    row.style.padding = "16px";
+    row.style.borderBottom = index === availablePlugins.length - 1 ? "none" : `1px solid ${colors.border}`;
+    row.style.alignItems = "center";
 
-    card.innerHTML = `
+    row.innerHTML = `
         <div>
-            <h3 style="margin: 0 0 5px 0; color: #d2a8ff;">${plugin.name}</h3>
-            <p style="margin: 0 0 5px 0; color: #8b949e; font-size: 14px;">${plugin.desc}</p>
-            <span style="font-size: 12px; color: #58a6ff;">Command: > ${plugin.command}</span>
+            <div style="font-weight: 600; font-size: 14px; margin-bottom: 2px;">${plugin.name}</div>
+            <div style="font-size: 13px; color: ${colors.muted}; margin-bottom: 8px;">${plugin.desc}</div>
+            <code style="font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace; font-size: 12px; color: ${colors.primary}; background: rgba(88, 166, 255, 0.1); padding: 2px 4px; border-radius: 4px;">
+                ${plugin.command}
+            </code>
         </div>
-        <button onclick="togglePlugin('${plugin.url}')" id="btn-${index}" 
-            style="background: ${isInstalled ? '#ff4444' : '#238636'}; color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; min-width: 100px;">
-            ${isInstalled ? 'Remove' : 'Install'}
-        </button>
+        <div style="text-align: right;">
+            <button onclick="togglePlugin('${plugin.url}')" id="btn-${index}" 
+                style="background: ${isInstalled ? 'transparent' : colors.surface}; 
+                       color: ${isInstalled ? colors.danger : colors.text}; 
+                       border: 1px solid ${isInstalled ? colors.danger : colors.border}; 
+                       padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 150ms;">
+                ${isInstalled ? 'Remove' : 'Install'}
+            </button>
+        </div>
     `;
-    grid.appendChild(card);
+    grid.appendChild(row);
 });
 
 // 4. Handle Install / Remove logic
@@ -74,27 +99,23 @@ window.togglePlugin = function(url) {
     
     if (stored.includes(url)) {
         stored = stored.filter(p => p !== url);
-        alert("Plugin queued for removal.");
     } else {
         stored.push(url);
-        alert("Plugin queued for installation.");
     }
     
     localStorage.setItem("plugins", JSON.stringify(stored));
     
-    // Refresh visual state without reloading the whole page
     const btnId = availablePlugins.findIndex(p => p.url === url);
     const btn = document.getElementById(`btn-${btnId}`);
-    if (stored.includes(url)) {
-        btn.style.background = "#ff4444";
-        btn.innerText = "Remove";
-    } else {
-        btn.style.background = "#238636";
-        btn.innerText = "Install";
-    }
+    const isNowInstalled = stored.includes(url);
+
+    // Update button state to reflect status
+    btn.style.background = isNowInstalled ? 'transparent' : colors.surface;
+    btn.style.color = isNowInstalled ? colors.danger : colors.text;
+    btn.style.borderColor = isNowInstalled ? colors.danger : colors.border;
+    btn.innerText = isNowInstalled ? "Remove" : "Install";
 };
 
-// 5. Exit returns to the terminal application
 document.getElementById("exit-btn").onclick = () => {
     window.location.reload();
 };
