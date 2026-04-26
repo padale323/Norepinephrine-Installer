@@ -3,24 +3,63 @@
 const availablePlugins = [
     {
         name: "Theme Colors",
+        creator: "padale323",
         command: "bg [COLOR] and text [Color]",
         desc: "Allows you to change the color of the Background or Text.",
         url: "https://raw.githubusercontent.com/padale323/Theme-Plugin/refs/heads/main/plugin.js" 
     },
     {
         name: "Wikipedia",
+        creator: "padale323",
         command: "wiki",
         desc: "Allows you to get wikipedia summaries on topics.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/Wiki/plugin.js" 
     },
     {
         name: "Dictionary",
+        creator: "padale323",
         command: "dict",
         desc: "Allows you to get definitions.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/dictionary/plugin.js" 
     },
     {
+        name: "Echo",
+        creator: "padale323",
+        command: "echo",
+        desc: "repeats stuff back to you like an echo.",
+        url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/echo/plugin.js" 
+    },
+    {
+        name: "Delay",
+        creator: "padale323",
+        command: "delay",
+        desc: "creates delay and then resumes.",
+        url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/delay/plugin.js" 
+    },
+    {
+        name: "Math",
+        creator: "padale323",
+        command: "math",
+        desc: "does math.",
+        url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/math/plugin.js" 
+    },
+    {
+        name: "JS",
+        creator: "padale323",
+        command: "js, or js on/off",
+        desc: "Lets you run js like you would run a command with js <js> or treat any unreconized command as js with js on.",
+        url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/js/plugin.js" 
+    },
+    {
+        name: "Console Redirect",
+        creator: "padale323",
+        command: "console-logs <on|off> + console-warns <on|off> + console-errors <on|off> + console-status",
+        desc: "Lets you redirect browser console output to the terminal..",
+        url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/console-redirect/plugin.js" 
+    },
+    {
         name: "Public IP",
+        creator: "padale323",
         command: "ip",
         desc: "Gets your Public Ip.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/ip/plugin.js" 
@@ -80,7 +119,10 @@ availablePlugins.forEach((plugin, index) => {
 
     row.innerHTML = `
         <div>
-            <div style="font-weight: 600; font-size: 14px; margin-bottom: 2px;">${plugin.name}</div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
+                <span style="font-weight: 600; font-size: 14px;">${plugin.name}</span>
+                <span style="font-size: 11px; color: ${colors.muted}; background: rgba(139, 148, 158, 0.1); padding: 1px 6px; border-radius: 10px; border: 1px solid ${colors.border};">by ${plugin.creator}</span>
+            </div>
             <div style="font-size: 13px; color: ${colors.muted}; margin-bottom: 8px;">${plugin.desc}</div>
             <code style="font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace; font-size: 12px; color: ${colors.primary}; background: rgba(88, 166, 255, 0.1); padding: 2px 4px; border-radius: 4px;">
                 ${plugin.command}
