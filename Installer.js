@@ -5,7 +5,7 @@ const availablePlugins = [
     {
         name: "Theme Colors",
         category: "Customization",
-        tag: { text: "STABLE", color: "#2ea043" },
+        tag: { text: "STABLE", color: "#2ea043" }, 
         creator: "padale323",
         commands: ["bg [color]", "text [color]"],
         desc: "Allows you to change the color of the Background or Text.",
@@ -16,7 +16,6 @@ const availablePlugins = [
     {
         name: "Wikipedia",
         category: "Utility",
-        tag: { text: "BETA", color: "#d29922" },
         creator: "padale323",
         commands: ["wiki [topic]"],
         desc: "Allows you to get wikipedia summaries on topics.",
@@ -25,7 +24,6 @@ const availablePlugins = [
     {
         name: "Dictionary",
         category: "Utility",
-        tag: { text: "STABLE", color: "#2ea043" },
         creator: "padale323",
         commands: ["dict [word]"],
         desc: "Allows you to get definitions.",
@@ -34,7 +32,6 @@ const availablePlugins = [
     {
         name: "Math",
         category: "Utility",
-        tag: { text: "STABLE", color: "#2ea043" },
         creator: "padale323",
         commands: ["math [expression]"],
         desc: "Does math calculations.",
@@ -43,7 +40,6 @@ const availablePlugins = [
     {
         name: "Public IP",
         category: "Utility",
-        tag: { text: "NEW", color: "#a371f7" },
         creator: "padale323",
         commands: ["ip"],
         desc: "Gets your Public IP address.",
@@ -54,7 +50,6 @@ const availablePlugins = [
     {
         name: "JS",
         category: "Developer",
-        tag: { text: "ADVANCED", color: "#f78166" },
         creator: "padale323",
         commands: ["js [code]", "js on", "js off"],
         desc: "Run JS or treat unrecognized commands as JS.",
@@ -63,7 +58,6 @@ const availablePlugins = [
     {
         name: "Console Redirect",
         category: "Developer",
-        tag: { text: "BETA", color: "#d29922" },
         creator: "padale323",
         commands: ["console-logs on/off", "console-warns on/off", "console-errors on/off", "console-status"],
         desc: "Redirect browser console output to the terminal.",
@@ -72,7 +66,6 @@ const availablePlugins = [
     {
         name: "Echo",
         category: "Developer",
-        tag: { text: "STABLE", color: "#2ea043" },
         creator: "padale323",
         commands: ["echo [text]"],
         desc: "Repeats stuff back to you like an echo.",
@@ -81,7 +74,6 @@ const availablePlugins = [
     {
         name: "Delay",
         category: "Developer",
-        tag: { text: "STABLE", color: "#2ea043" },
         creator: "padale323",
         commands: ["delay [ms]"],
         desc: "Creates delay and then resumes.",
@@ -99,21 +91,30 @@ const colors = {
     danger: "#f78166"
 };
 
-// UI Initialization
+// Add CSS for the custom scrollbar
+const style = document.createElement('style');
+style.innerHTML = `
+    #plugin-grid::-webkit-scrollbar { width: 8px; }
+    #plugin-grid::-webkit-scrollbar-track { background: ${colors.bg}; }
+    #plugin-grid::-webkit-scrollbar-thumb { background: ${colors.border}; border-radius: 10px; }
+    #plugin-grid::-webkit-scrollbar-thumb:hover { background: ${colors.muted}; }
+`;
+document.head.appendChild(style);
+
 document.body.style.backgroundColor = colors.bg;
 document.body.style.margin = "0";
+document.body.style.overflow = "hidden"; // Prevents the whole page from scrolling
 
 document.body.innerHTML = `
-    <div style="padding: 32px; color: ${colors.text}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; max-width: 900px; margin: 0 auto;">
-        <div style="margin-bottom: 24px;">
+    <div style="padding: 32px; color: ${colors.text}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; max-width: 900px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; box-sizing: border-box;">
+        <div style="margin-bottom: 24px; flex-shrink: 0;">
             <h1 style="font-size: 20px; font-weight: 600; margin: 0 0 8px 0;">Plugin Installer</h1>
             <p style="font-size: 14px; color: ${colors.muted}; margin: 0;">Manage terminal extensions and community plugins.</p>
         </div>
         
-        <div id="plugin-grid" style="border: 1px solid ${colors.border}; border-radius: 6px; overflow: hidden; background: ${colors.surface};">
+        <div id="plugin-grid" style="border: 1px solid ${colors.border}; border-radius: 6px; overflow-y: auto; background: ${colors.surface}; flex-grow: 1; min-height: 0;">
             </div>
-        
-        <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
+        <div style="margin-top: 24px; display: flex; justify-content: flex-end; flex-shrink: 0;">
             <button id="exit-btn" style="background: ${colors.surface}; color: ${colors.text}; border: 1px solid ${colors.border}; padding: 6px 12px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; border-radius: 6px;">
                 Restart & Return
             </button>
@@ -125,34 +126,34 @@ const grid = document.getElementById("plugin-grid");
 const categories = [...new Set(availablePlugins.map(p => p.category))];
 
 categories.forEach(cat => {
-    // Category Divider
     const header = document.createElement("div");
-    header.style.cssText = `padding: 10px 16px; background: #090c10; font-size: 11px; font-weight: 700; color: ${colors.muted}; text-transform: uppercase; border-bottom: 1px solid ${colors.border}; letter-spacing: 0.5px;`;
+    header.style.cssText = `position: sticky; top: 0; z-index: 10; padding: 10px 16px; background: #090c10; font-size: 11px; font-weight: 700; color: ${colors.muted}; text-transform: uppercase; border-bottom: 1px solid ${colors.border}; letter-spacing: 0.5px;`;
     header.innerText = cat;
     grid.appendChild(header);
 
-    const catPlugins = availablePlugins.filter(p => p.category === cat);
-    
-    catPlugins.forEach((plugin) => {
+    availablePlugins.filter(p => p.category === cat).forEach((plugin) => {
         let installedList = JSON.parse(localStorage.getItem("plugins") || "[]");
         const isInstalled = installedList.includes(plugin.url);
         const globalIndex = availablePlugins.findIndex(p => p.url === plugin.url);
 
-        const row = document.createElement("div");
-        row.style.cssText = `display: grid; grid-template-columns: 1fr 140px; padding: 16px; border-bottom: 1px solid ${colors.border}; align-items: center;`;
+        const tagHtml = plugin.tag 
+            ? `<span style="font-size: 10px; color: ${plugin.tag.color}; border: 1px solid ${plugin.tag.color}; padding: 0px 5px; border-radius: 10px; font-weight: 700; text-transform: uppercase;">${plugin.tag.text}</span>`
+            : '';
 
-        // Command Bubble Map
         const commandHtml = plugin.commands.map(cmd => `
             <code style="font-family: ui-monospace, monospace; font-size: 11px; color: ${colors.primary}; background: rgba(88, 166, 255, 0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(88, 166, 255, 0.2); white-space: nowrap;">
                 ${cmd}
             </code>
         `).join('');
 
+        const row = document.createElement("div");
+        row.style.cssText = `display: grid; grid-template-columns: 1fr 140px; padding: 16px; border-bottom: 1px solid ${colors.border}; align-items: center;`;
+
         row.innerHTML = `
             <div>
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                     <span style="font-weight: 600; font-size: 14px;">${plugin.name}</span>
-                    <span style="font-size: 10px; color: ${plugin.tag.color}; border: 1px solid ${plugin.tag.color}; padding: 0px 5px; border-radius: 10px; font-weight: 700; text-transform: uppercase;">${plugin.tag.text}</span>
+                    ${tagHtml}
                     <span style="font-size: 11px; color: ${colors.muted};">by ${plugin.creator}</span>
                 </div>
                 <div style="font-size: 13px; color: ${colors.muted}; margin-bottom: 10px;">${plugin.desc}</div>
@@ -176,13 +177,7 @@ categories.forEach(cat => {
 
 window.togglePlugin = function(url) {
     let stored = JSON.parse(localStorage.getItem("plugins") || "[]");
-    
-    if (stored.includes(url)) {
-        stored = stored.filter(p => p !== url);
-    } else {
-        stored.push(url);
-    }
-    
+    stored.includes(url) ? (stored = stored.filter(p => p !== url)) : stored.push(url);
     localStorage.setItem("plugins", JSON.stringify(stored));
     
     const pIndex = availablePlugins.findIndex(p => p.url === url);
@@ -195,6 +190,4 @@ window.togglePlugin = function(url) {
     btn.innerText = isNowInstalled ? "Remove" : "Install";
 };
 
-document.getElementById("exit-btn").onclick = () => {
-    window.location.reload();
-};
+document.getElementById("exit-btn").onclick = () => window.location.reload();
