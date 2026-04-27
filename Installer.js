@@ -1,5 +1,7 @@
 // Norepinephrine Plugin Installer 
 
+const buildNumber = "BETA v1"; // The build number you can manually update
+
 const availablePlugins = [
     // --- CUSTOMIZATION ---
     {
@@ -91,7 +93,7 @@ const colors = {
     danger: "#f78166"
 };
 
-// Add CSS for the custom scrollbar
+// CSS for custom scrollbar
 const style = document.createElement('style');
 style.innerHTML = `
     #plugin-grid::-webkit-scrollbar { width: 8px; }
@@ -103,21 +105,25 @@ document.head.appendChild(style);
 
 document.body.style.backgroundColor = colors.bg;
 document.body.style.margin = "0";
-document.body.style.overflow = "hidden"; // Prevents the whole page from scrolling
+document.body.style.overflow = "hidden";
 
 document.body.innerHTML = `
-    <div style="padding: 32px; color: ${colors.text}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; max-width: 900px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; box-sizing: border-box;">
+    <div style="padding: 32px; color: ${colors.text}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; max-width: 900px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; box-sizing: border-box; position: relative;">
         <div style="margin-bottom: 24px; flex-shrink: 0;">
             <h1 style="font-size: 20px; font-weight: 600; margin: 0 0 8px 0;">Plugin Installer</h1>
             <p style="font-size: 14px; color: ${colors.muted}; margin: 0;">Manage terminal extensions and community plugins.</p>
         </div>
         
-        <div id="plugin-grid" style="border: 1px solid ${colors.border}; border-radius: 6px; overflow-y: auto; background: ${colors.surface}; flex-grow: 1; min-height: 0;">
-            </div>
-        <div style="margin-top: 24px; display: flex; justify-content: flex-end; flex-shrink: 0;">
+        <div id="plugin-grid" style="border: 1px solid ${colors.border}; border-radius: 6px; overflow-y: auto; background: ${colors.surface}; flex-grow: 1; min-height: 0;"></div>
+        
+        <div style="margin-top: 24px; display: flex; justify-content: flex-end; flex-shrink: 0; align-items: center; gap: 16px;">
             <button id="exit-btn" style="background: ${colors.surface}; color: ${colors.text}; border: 1px solid ${colors.border}; padding: 6px 12px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; border-radius: 6px;">
                 Restart & Return
             </button>
+        </div>
+
+        <div style="position: absolute; bottom: 12px; right: 12px; font-size: 10px; color: ${colors.muted}; font-family: monospace; background: rgba(255,255,255,0.03); padding: 2px 8px; border-radius: 12px; border: 1px solid ${colors.border};">
+            BUILD: ${buildNumber}
         </div>
     </div>
 `;
