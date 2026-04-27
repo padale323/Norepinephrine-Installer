@@ -1,72 +1,94 @@
 // Norepinephrine Plugin Installer 
 
 const availablePlugins = [
+    // --- CUSTOMIZATION ---
     {
         name: "Theme Colors",
+        category: "Customization",
+        tag: { text: "STABLE", color: "#2ea043" },
         creator: "padale323",
-        command: "bg [COLOR] and text [Color]",
+        commands: ["bg [color]", "text [color]"],
         desc: "Allows you to change the color of the Background or Text.",
         url: "https://raw.githubusercontent.com/padale323/Theme-Plugin/refs/heads/main/plugin.js" 
     },
+
+    // --- UTILITY ---
     {
         name: "Wikipedia",
+        category: "Utility",
+        tag: { text: "BETA", color: "#d29922" },
         creator: "padale323",
-        command: "wiki",
+        commands: ["wiki [topic]"],
         desc: "Allows you to get wikipedia summaries on topics.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/Wiki/plugin.js" 
     },
     {
         name: "Dictionary",
+        category: "Utility",
+        tag: { text: "STABLE", color: "#2ea043" },
         creator: "padale323",
-        command: "dict",
+        commands: ["dict [word]"],
         desc: "Allows you to get definitions.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/dictionary/plugin.js" 
     },
     {
-        name: "Echo",
-        creator: "padale323",
-        command: "echo",
-        desc: "repeats stuff back to you like an echo.",
-        url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/echo/plugin.js" 
-    },
-    {
-        name: "Delay",
-        creator: "padale323",
-        command: "delay",
-        desc: "creates delay and then resumes.",
-        url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/delay/plugin.js" 
-    },
-    {
         name: "Math",
+        category: "Utility",
+        tag: { text: "STABLE", color: "#2ea043" },
         creator: "padale323",
-        command: "math",
-        desc: "does math.",
+        commands: ["math [expression]"],
+        desc: "Does math calculations.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/math/plugin.js" 
     },
     {
-        name: "JS",
+        name: "Public IP",
+        category: "Utility",
+        tag: { text: "NEW", color: "#a371f7" },
         creator: "padale323",
-        command: "js, or js on/off",
-        desc: "Lets you run js like you would run a command with js <js> or treat any unreconized command as js with js on.",
+        commands: ["ip"],
+        desc: "Gets your Public IP address.",
+        url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/ip/plugin.js" 
+    },
+
+    // --- DEVELOPER TOOLS ---
+    {
+        name: "JS",
+        category: "Developer",
+        tag: { text: "ADVANCED", color: "#f78166" },
+        creator: "padale323",
+        commands: ["js [code]", "js on", "js off"],
+        desc: "Run JS or treat unrecognized commands as JS.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/js/plugin.js" 
     },
     {
         name: "Console Redirect",
+        category: "Developer",
+        tag: { text: "BETA", color: "#d29922" },
         creator: "padale323",
-        command: "console-logs <on|off> + console-warns <on|off> + console-errors <on|off> + console-status",
-        desc: "Lets you redirect browser console output to the terminal..",
+        commands: ["console-logs on/off", "console-warns on/off", "console-errors on/off", "console-status"],
+        desc: "Redirect browser console output to the terminal.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/console-redirect/plugin.js" 
     },
     {
-        name: "Public IP",
+        name: "Echo",
+        category: "Developer",
+        tag: { text: "STABLE", color: "#2ea043" },
         creator: "padale323",
-        command: "ip",
-        desc: "Gets your Public Ip.",
-        url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/ip/plugin.js" 
+        commands: ["echo [text]"],
+        desc: "Repeats stuff back to you like an echo.",
+        url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/echo/plugin.js" 
+    },
+    {
+        name: "Delay",
+        category: "Developer",
+        tag: { text: "STABLE", color: "#2ea043" },
+        creator: "padale323",
+        commands: ["delay [ms]"],
+        desc: "Creates delay and then resumes.",
+        url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/delay/plugin.js" 
     }
 ];
 
-// Configuration
 const colors = {
     bg: "#0d1117",
     surface: "#161b22",
@@ -77,7 +99,7 @@ const colors = {
     danger: "#f78166"
 };
 
-// 2. Build the Installer UI
+// UI Initialization
 document.body.style.backgroundColor = colors.bg;
 document.body.style.margin = "0";
 
@@ -89,11 +111,7 @@ document.body.innerHTML = `
         </div>
         
         <div id="plugin-grid" style="border: 1px solid ${colors.border}; border-radius: 6px; overflow: hidden; background: ${colors.surface};">
-            <div style="display: grid; grid-template-columns: 1fr 140px; padding: 12px 16px; border-bottom: 1px solid ${colors.border}; background: ${colors.bg}; font-size: 12px; font-weight: 600; color: ${colors.muted}; text-transform: uppercase;">
-                <div>Plugin Information</div>
-                <div style="text-align: right;">Action</div>
             </div>
-        </div>
         
         <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
             <button id="exit-btn" style="background: ${colors.surface}; color: ${colors.text}; border: 1px solid ${colors.border}; padding: 6px 12px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; border-radius: 6px;">
@@ -104,44 +122,58 @@ document.body.innerHTML = `
 `;
 
 const grid = document.getElementById("plugin-grid");
+const categories = [...new Set(availablePlugins.map(p => p.category))];
 
-// 3. Render the plugin rows
-availablePlugins.forEach((plugin, index) => {
-    let installedList = JSON.parse(localStorage.getItem("plugins") || "[]");
-    const isInstalled = installedList.includes(plugin.url);
+categories.forEach(cat => {
+    // Category Divider
+    const header = document.createElement("div");
+    header.style.cssText = `padding: 10px 16px; background: #090c10; font-size: 11px; font-weight: 700; color: ${colors.muted}; text-transform: uppercase; border-bottom: 1px solid ${colors.border}; letter-spacing: 0.5px;`;
+    header.innerText = cat;
+    grid.appendChild(header);
 
-    const row = document.createElement("div");
-    row.style.display = "grid";
-    row.style.gridTemplateColumns = "1fr 140px";
-    row.style.padding = "16px";
-    row.style.borderBottom = index === availablePlugins.length - 1 ? "none" : `1px solid ${colors.border}`;
-    row.style.alignItems = "center";
+    const catPlugins = availablePlugins.filter(p => p.category === cat);
+    
+    catPlugins.forEach((plugin) => {
+        let installedList = JSON.parse(localStorage.getItem("plugins") || "[]");
+        const isInstalled = installedList.includes(plugin.url);
+        const globalIndex = availablePlugins.findIndex(p => p.url === plugin.url);
 
-    row.innerHTML = `
-        <div>
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
-                <span style="font-weight: 600; font-size: 14px;">${plugin.name}</span>
-                <span style="font-size: 11px; color: ${colors.muted}; background: rgba(139, 148, 158, 0.1); padding: 1px 6px; border-radius: 10px; border: 1px solid ${colors.border};">by ${plugin.creator}</span>
-            </div>
-            <div style="font-size: 13px; color: ${colors.muted}; margin-bottom: 8px;">${plugin.desc}</div>
-            <code style="font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace; font-size: 12px; color: ${colors.primary}; background: rgba(88, 166, 255, 0.1); padding: 2px 4px; border-radius: 4px;">
-                ${plugin.command}
+        const row = document.createElement("div");
+        row.style.cssText = `display: grid; grid-template-columns: 1fr 140px; padding: 16px; border-bottom: 1px solid ${colors.border}; align-items: center;`;
+
+        // Command Bubble Map
+        const commandHtml = plugin.commands.map(cmd => `
+            <code style="font-family: ui-monospace, monospace; font-size: 11px; color: ${colors.primary}; background: rgba(88, 166, 255, 0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(88, 166, 255, 0.2); white-space: nowrap;">
+                ${cmd}
             </code>
-        </div>
-        <div style="text-align: right;">
-            <button onclick="togglePlugin('${plugin.url}')" id="btn-${index}" 
-                style="background: ${isInstalled ? 'transparent' : colors.surface}; 
-                       color: ${isInstalled ? colors.danger : colors.text}; 
-                       border: 1px solid ${isInstalled ? colors.danger : colors.border}; 
-                       padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 150ms;">
-                ${isInstalled ? 'Remove' : 'Install'}
-            </button>
-        </div>
-    `;
-    grid.appendChild(row);
+        `).join('');
+
+        row.innerHTML = `
+            <div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <span style="font-weight: 600; font-size: 14px;">${plugin.name}</span>
+                    <span style="font-size: 10px; color: ${plugin.tag.color}; border: 1px solid ${plugin.tag.color}; padding: 0px 5px; border-radius: 10px; font-weight: 700; text-transform: uppercase;">${plugin.tag.text}</span>
+                    <span style="font-size: 11px; color: ${colors.muted};">by ${plugin.creator}</span>
+                </div>
+                <div style="font-size: 13px; color: ${colors.muted}; margin-bottom: 10px;">${plugin.desc}</div>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                    ${commandHtml}
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <button onclick="togglePlugin('${plugin.url}')" id="btn-${globalIndex}" 
+                    style="background: ${isInstalled ? 'transparent' : colors.surface}; 
+                           color: ${isInstalled ? colors.danger : colors.text}; 
+                           border: 1px solid ${isInstalled ? colors.danger : colors.border}; 
+                           padding: 6px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 150ms;">
+                    ${isInstalled ? 'Remove' : 'Install'}
+                </button>
+            </div>
+        `;
+        grid.appendChild(row);
+    });
 });
 
-// 4. Handle Install / Remove logic
 window.togglePlugin = function(url) {
     let stored = JSON.parse(localStorage.getItem("plugins") || "[]");
     
@@ -153,11 +185,10 @@ window.togglePlugin = function(url) {
     
     localStorage.setItem("plugins", JSON.stringify(stored));
     
-    const btnId = availablePlugins.findIndex(p => p.url === url);
-    const btn = document.getElementById(`btn-${btnId}`);
+    const pIndex = availablePlugins.findIndex(p => p.url === url);
+    const btn = document.getElementById(`btn-${pIndex}`);
     const isNowInstalled = stored.includes(url);
 
-    // Update button state to reflect status
     btn.style.background = isNowInstalled ? 'transparent' : colors.surface;
     btn.style.color = isNowInstalled ? colors.danger : colors.text;
     btn.style.borderColor = isNowInstalled ? colors.danger : colors.border;
