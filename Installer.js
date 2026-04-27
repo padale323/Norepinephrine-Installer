@@ -1,6 +1,6 @@
 // Norepinephrine Plugin Installer 
 
-const buildNumber = "BETA v1"; // The build number you can manually update
+const buildNumber = "Release v1"; // The build number you can manually update
 
 const availablePlugins = [
     // --- CUSTOMIZATION ---
