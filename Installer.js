@@ -7,7 +7,7 @@ const availablePlugins = [
         tags: ["UI"],
         creator: "padale323",
         commands: ["bg [color]", "text [color]"],
-        desc: "Modify the terminal interface color palette for background and typography.",
+        desc: "Modify the terminal interface color palette for background and some text.",
         url: "https://raw.githubusercontent.com/padale323/Theme-Plugin/refs/heads/main/plugin.js" 
     },
     {
