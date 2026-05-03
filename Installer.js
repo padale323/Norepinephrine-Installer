@@ -4,255 +4,187 @@ const availablePlugins = [
     {
         name: "Theme Colors",
         category: "Customization",
-        tag: { text: "STABLE", color: "#0f9d58" }, 
+        tags: ["UI"],
         creator: "padale323",
         commands: ["bg [color]", "text [color]"],
-        desc: "Allows you to change the color of the Background or Text.",
+        desc: "Modify the terminal interface color palette for background and typography.",
         url: "https://raw.githubusercontent.com/padale323/Theme-Plugin/refs/heads/main/plugin.js" 
     },
     {
         name: "Wikipedia",
         category: "Utility",
+        tags: ["Research"],
         creator: "padale323",
         commands: ["wiki [topic]"],
-        desc: "Allows you to get wikipedia summaries on topics.",
+        desc: "Fetch summary data and references directly from the Wikipedia API.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/Wiki/plugin.js" 
     },
     {
         name: "Dictionary",
         category: "Utility",
+        tags: ["Reference"],
         creator: "padale323",
         commands: ["dict [word]"],
-        desc: "Allows you to get definitions.",
+        desc: "Lexical definitions and phonetic transcriptions for English terms.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/dictionary/plugin.js" 
     },
     {
         name: "Math",
         category: "Utility",
+        tags: ["Logic"],
         creator: "padale323",
         commands: ["math [expression]"],
-        desc: "Does math calculations.",
+        desc: "Evaluates complex mathematical expressions and algebraic strings.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/math/plugin.js" 
     },
     {
         name: "Public IP",
         category: "Utility",
+        tags: ["Network"],
         creator: "padale323",
         commands: ["ip"],
-        desc: "Gets your Public IP address.",
+        desc: "Retrieve and display current network external IP address information.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/ip/plugin.js" 
     },
     {
         name: "JS",
         category: "Developer",
+        tags: ["Runtime"],
         creator: "padale323",
         commands: ["js [code]", "js on", "js off"],
-        desc: "Run JS or treat unrecognized commands as JS.",
+        desc: "Execute JavaScript strings or toggle unrecognized inputs as scripts.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/js/plugin.js" 
     },
     {
         name: "Console Redirect",
         category: "Developer",
+        tags: ["Debug"],
         creator: "padale323",
-        commands: ["console-logs on/off", "console-warns on/off", "console-errors on/off", "console-status"],
-        desc: "Redirect browser console output to the terminal.",
+        commands: ["console-logs on", "console-status"],
+        desc: "Hooks into the browser console to pipe logs directly to the UI terminal.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/console-redirect/plugin.js" 
     },
     {
         name: "Echo",
         category: "Developer",
+        tags: ["Debug"],
         creator: "padale323",
         commands: ["echo [text]"],
-        desc: "Repeats stuff back to you like an echo.",
+        desc: "Repeats input back to the user to verify terminal output pipes.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/echo/plugin.js" 
     },
     {
         name: "Delay",
         category: "Developer",
+        tags: ["Automation"],
         creator: "padale323",
         commands: ["delay [ms]"],
-        desc: "Creates delay and then resumes.",
+        desc: "Suspends execution for a specified millisecond duration.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/delay/plugin.js" 
     }
 ];
 
 const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-
 const theme = isDark ? {
-    bg: "#202124",
-    surface: "#303134",
-    border: "#5f6368",
-    text: "#e8eaed",
-    textSecondary: "#9aa0a6",
-    primary: "#8ab4f8",
-    primaryContainer: "#3c4043",
-    danger: "#ea4335"
+    bg: "#202124", surface: "#303134", border: "#5f6368", text: "#e8eaed",
+    textSec: "#9aa0a6", primary: "#8ab4f8", container: "#3c4043", danger: "#ea4335"
 } : {
-    bg: "#ffffff",
-    surface: "#ffffff",
-    border: "#dadce0",
-    text: "#202124",
-    textSecondary: "#5f6368",
-    primary: "#0b57d0",
-    primaryContainer: "#f1f3f4",
-    danger: "#d93025"
+    bg: "#ffffff", surface: "#ffffff", border: "#dadce0", text: "#202124",
+    textSec: "#5f6368", primary: "#0b57d0", container: "#f1f3f4", danger: "#d93025"
 };
 
 const style = document.createElement('style');
 style.innerHTML = `
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background-color: ${theme.bg}; color: ${theme.text}; font-family: Roboto, -apple-system, sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-    
-    header { padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid ${theme.border}; background: ${theme.bg}; z-index: 10; flex-shrink: 0; }
-    .logo { font-size: 22px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
-    
-    .search-container { flex-grow: 1; max-width: 600px; margin: 0 32px; }
-    .search-container input { width: 100%; padding: 12px 24px; background: ${theme.primaryContainer}; border: 1px solid transparent; border-radius: 8px; color: ${theme.text}; font-size: 15px; outline: none; }
-    .search-container input:focus { border: 1px solid ${theme.primary}; background: ${theme.surface}; }
-    
-    .btn-close { background: ${theme.danger}; color: #ffffff; border: none; padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
-    
-    .main-wrapper { display: flex; flex-grow: 1; overflow: hidden; }
-    
-    .sidebar { width: 260px; border-right: 1px solid ${theme.border}; background: ${theme.bg}; padding: 24px 12px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
-    .nav-item { padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; color: ${theme.textSecondary}; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-    .nav-item:hover { background: ${theme.primaryContainer}; }
-    .nav-item.active { background: ${isDark ? '#3f4a5c' : '#e8f0fe'}; color: ${theme.primary}; }
-    
-    .content { flex-grow: 1; overflow-y: auto; padding: 32px; background: ${theme.surface}; }
-    
-    .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 24px; }
-    .app-card { display: flex; gap: 16px; padding: 20px; border: 1px solid ${theme.border}; border-radius: 12px; background: ${theme.bg}; align-items: flex-start; }
-    
-    .app-icon { width: 72px; height: 72px; border-radius: 12px; background: ${theme.primaryContainer}; border: 1px solid ${theme.border}; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 500; color: ${theme.primary}; flex-shrink: 0; }
-    
-    .app-info { flex-grow: 1; }
-    .app-title { font-size: 18px; font-weight: 500; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
-    .app-creator { font-size: 13px; color: ${theme.textSecondary}; margin-bottom: 8px; }
-    .app-desc { font-size: 14px; color: ${theme.text}; margin-bottom: 16px; line-height: 1.4; }
-    
-    .tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 600; border: 1px solid; }
-    .cmd-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
-    .cmd { background: ${theme.primaryContainer}; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-size: 12px; color: ${theme.text}; }
-    
-    .btn-action { padding: 8px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; border: 1px solid transparent; width: 100%; transition: background 0.1s; }
-    .btn-install { background: ${theme.primary}; color: #ffffff; }
+    body { background: ${theme.bg}; color: ${theme.text}; font-family: 'Roboto', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    header { padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid ${theme.border}; background: ${theme.bg}; z-index: 100; flex-shrink: 0; }
+    .logo { font-size: 18px; font-weight: 500; white-space: nowrap; }
+    .search-box { flex-grow: 1; margin: 0 15px; }
+    .search-box input { width: 100%; padding: 10px 16px; background: ${theme.container}; border: none; border-radius: 8px; color: ${theme.text}; outline: none; font-size: 14px; }
+    .btn-close { background: ${theme.danger}; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+    .main { display: flex; flex-grow: 1; overflow: hidden; flex-direction: row; }
+    .sidebar { width: 240px; border-right: 1px solid ${theme.border}; background: ${theme.bg}; padding: 15px 0; overflow-y: auto; flex-shrink: 0; }
+    .nav-item { padding: 10px 24px; font-size: 14px; cursor: pointer; color: ${theme.textSec}; transition: 0.2s; }
+    .nav-item.active { color: ${theme.primary}; background: ${isDark ? '#3c4043' : '#e8f0fe'}; font-weight: 500; }
+    .content { flex-grow: 1; overflow-y: auto; padding: 20px; -webkit-overflow-scrolling: touch; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .card { background: ${theme.bg}; border: 1px solid ${theme.border}; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; }
+    .card-top { display: flex; gap: 12px; margin-bottom: 12px; }
+    .icon { width: 50px; height: 50px; background: ${theme.container}; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: ${theme.primary}; flex-shrink: 0; }
+    .info { overflow: hidden; }
+    .title { font-size: 15px; font-weight: 500; margin-bottom: 2px; }
+    .creator { font-size: 12px; color: ${theme.textSec}; }
+    .desc { font-size: 13px; color: ${theme.textSec}; line-height: 1.4; height: 36px; overflow: hidden; margin-bottom: 12px; }
+    .tag-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .tag { font-size: 10px; padding: 2px 8px; border-radius: 4px; background: ${theme.container}; color: ${theme.primary}; border: 1px solid ${theme.border}; text-transform: uppercase; font-weight: 700; }
+    .btn-action { width: 100%; padding: 8px; border-radius: 6px; border: none; font-size: 13px; font-weight: 500; cursor: pointer; }
+    .btn-install { background: ${theme.primary}; color: ${isDark ? '#202124' : '#fff'}; }
     .btn-remove { background: transparent; color: ${theme.primary}; border: 1px solid ${theme.border}; }
+    @media (max-width: 600px) {
+        .main { flex-direction: column; }
+        .sidebar { width: 100%; height: 52px; display: flex; border-right: none; border-bottom: 1px solid ${theme.border}; padding: 0 10px; align-items: center; white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
+        .sidebar::-webkit-scrollbar { display: none; }
+        .nav-item { padding: 0 15px; height: 100%; display: flex; align-items: center; border-radius: 0; }
+        .search-box { margin: 0 8px; }
+        .logo { display: none; }
+    }
 `;
 document.head.appendChild(style);
 
-let activeCategory = "All Plugins";
+let activeCategory = "All";
 let searchQuery = "";
-const categories = ["All Plugins", ...new Set(availablePlugins.map(p => p.category)), "Installed"];
+const cats = ["All", "Utility", "Developer", "Customization", "Installed"];
 
 document.body.innerHTML = `
     <header>
-        <div class="logo">Plugin Store</div>
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Search for plugins or commands...">
-        </div>
+        <div class="logo">Play Store</div>
+        <div class="search-box"><input type="text" id="s" placeholder="Search apps..."></div>
         <button class="btn-close" onclick="window.close()">Close</button>
     </header>
-    <div class="main-wrapper">
-        <div class="sidebar" id="sidebarNav"></div>
-        <div class="content">
-            <h2 id="sectionTitle" style="margin-bottom: 24px; font-weight: 500; font-size: 24px;">All Plugins</h2>
-            <div id="grid" class="app-grid"></div>
-        </div>
+    <div class="main">
+        <div class="sidebar" id="sb"></div>
+        <div class="content"><div class="grid" id="g"></div></div>
     </div>
+    <div style="padding: 5px 20px; font-size: 10px; color: ${theme.textSec}; border-top: 1px solid ${theme.border}; background: ${theme.bg};">${buildNumber}</div>
 `;
 
-function renderSidebar() {
-    const nav = document.getElementById("sidebarNav");
-    let installedCount = 0;
-    try { installedCount = JSON.parse(localStorage.getItem("plugins") || "[]").length; } catch(e) {}
+function render() {
+    const sb = document.getElementById("sb");
+    const g = document.getElementById("g");
+    let installed = JSON.parse(localStorage.getItem("plugins") || "[]");
 
-    nav.innerHTML = categories.map(cat => `
-        <div class="nav-item ${activeCategory === cat ? 'active' : ''}" onclick="setCategory('${cat}')">
-            <span>${cat}</span>
-            ${cat === "Installed" ? `<span style="font-size: 12px; background: ${theme.primaryContainer}; padding: 2px 8px; border-radius: 12px;">${installedCount}</span>` : ''}
-        </div>
-    `).join('');
-}
+    sb.innerHTML = cats.map(c => `<div class="nav-item ${activeCategory === c ? 'active' : ''}" onclick="setCat('${c}')">${c}</div>`).join('');
+    g.innerHTML = "";
 
-window.setCategory = function(cat) {
-    activeCategory = cat;
-    document.getElementById("sectionTitle").innerText = cat;
-    renderSidebar();
-    renderGrid();
-};
-
-function renderGrid() {
-    const grid = document.getElementById("grid");
-    grid.innerHTML = "";
-    
-    let installedUrls = [];
-    try { installedUrls = JSON.parse(localStorage.getItem("plugins") || "[]"); } catch(e) {}
-
-    let filtered = availablePlugins.filter(p => {
-        const matchesSearch = p.name.toLowerCase().includes(searchQuery) || 
-                              p.desc.toLowerCase().includes(searchQuery) || 
-                              p.commands.join(' ').toLowerCase().includes(searchQuery);
-        
-        let matchesCategory = false;
-        if (activeCategory === "All Plugins") matchesCategory = true;
-        else if (activeCategory === "Installed") matchesCategory = installedUrls.includes(p.url);
-        else matchesCategory = p.category === activeCategory;
-
-        return matchesSearch && matchesCategory;
-    });
-
-    if (filtered.length === 0) {
-        grid.innerHTML = `<div style="color: ${theme.textSecondary};">No plugins found.</div>`;
-        return;
-    }
-
-    filtered.forEach((plugin, index) => {
-        const isInstalled = installedUrls.includes(plugin.url);
-        const iconChar = plugin.name.charAt(0);
-        
+    availablePlugins.filter(p => {
+        const match = p.name.toLowerCase().includes(searchQuery) || p.desc.toLowerCase().includes(searchQuery) || p.tags.some(t => t.toLowerCase().includes(searchQuery));
+        const catMatch = activeCategory === "All" || (activeCategory === "Installed" ? installed.includes(p.url) : p.category === activeCategory);
+        return match && catMatch;
+    }).forEach(p => {
+        const isInst = installed.includes(p.url);
         const card = document.createElement("div");
-        card.className = "app-card";
-        
-        const tagHtml = plugin.tag ? `<span class="tag" style="color: ${plugin.tag.color}; border-color: ${plugin.tag.color}">${plugin.tag.text}</span>` : '';
-        
+        card.className = "card";
         card.innerHTML = `
-            <div class="app-icon">${iconChar}</div>
-            <div class="app-info">
-                <div class="app-title">${plugin.name} ${tagHtml}</div>
-                <div class="app-creator">${plugin.creator}</div>
-                <div class="app-desc">${plugin.desc}</div>
-                <div class="cmd-list">
-                    ${plugin.commands.map(cmd => `<span class="cmd">${cmd}</span>`).join('')}
-                </div>
-                <button class="btn-action ${isInstalled ? 'btn-remove' : 'btn-install'}" onclick="togglePlugin('${plugin.url}', ${index})">
-                    ${isInstalled ? 'Uninstall' : 'Install'}
-                </button>
+            <div class="card-top">
+                <div class="icon">${p.name}</div>
+                <div class="info"><div class="title">${p.name}</div><div class="creator">${p.creator}</div></div>
             </div>
+            <div class="desc">${p.desc}</div>
+            <div class="tag-row">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+            <button class="btn-action ${isInst ? 'btn-remove' : 'btn-install'}" onclick="toggle('${p.url}')">
+                ${isInst ? 'Uninstall' : 'Install'}
+            </button>
         `;
-        grid.appendChild(card);
+        g.appendChild(card);
     });
 }
 
-window.togglePlugin = function(url) {
-    let stored = [];
-    try { stored = JSON.parse(localStorage.getItem("plugins") || "[]"); } catch(e) {}
-    
-    if (stored.includes(url)) {
-        stored = stored.filter(u => u !== url);
-    } else {
-        stored.push(url);
-    }
-    
-    localStorage.setItem("plugins", JSON.stringify(stored));
-    renderSidebar();
-    renderGrid();
+window.setCat = (c) => { activeCategory = c; render(); };
+window.toggle = (url) => {
+    let s = JSON.parse(localStorage.getItem("plugins") || "[]");
+    s.includes(url) ? (s = s.filter(u => u !== url)) : s.push(url);
+    localStorage.setItem("plugins", JSON.stringify(s));
+    render();
 };
-
-document.getElementById("searchInput").addEventListener("input", (e) => {
-    searchQuery = e.target.value.toLowerCase();
-    renderGrid();
-});
-
-renderSidebar();
-renderGrid();
+document.getElementById("s").oninput = (e) => { searchQuery = e.target.value.toLowerCase(); render(); };
+render();
