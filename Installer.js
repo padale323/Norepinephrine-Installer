@@ -1,4 +1,4 @@
-const buildNumber = "Build 4";
+const buildNumber = "Build 5";
 
 const availablePlugins = [
     {
@@ -86,7 +86,7 @@ const availablePlugins = [
 
 const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 const theme = isDark ? {
-    bg: "#202124", surface: "#303134", border: "#5f6368", text: "#e8eaed",
+    bg: "#202124", surface: "#303134", border: "#3c4043", text: "#e8eaed",
     textSec: "#9aa0a6", primary: "#8ab4f8", container: "#3c4043", danger: "#ea4335"
 } : {
     bg: "#ffffff", surface: "#ffffff", border: "#dadce0", text: "#202124",
@@ -96,37 +96,55 @@ const theme = isDark ? {
 const style = document.createElement('style');
 style.innerHTML = `
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: ${theme.bg}; color: ${theme.text}; font-family: 'Roboto', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-    header { padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid ${theme.border}; background: ${theme.bg}; z-index: 100; flex-shrink: 0; }
-    .logo { font-size: 18px; font-weight: 500; white-space: nowrap; }
-    .search-box { flex-grow: 1; margin: 0 15px; }
-    .search-box input { width: 100%; padding: 10px 16px; background: ${theme.container}; border: none; border-radius: 8px; color: ${theme.text}; outline: none; font-size: 14px; }
-    .btn-close { background: ${theme.danger}; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; }
-    .main { display: flex; flex-grow: 1; overflow: hidden; flex-direction: row; }
+    body { background: ${theme.bg}; color: ${theme.text}; font-family: 'Roboto', 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    
+    header { padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid ${theme.border}; background: ${theme.bg}; z-index: 100; flex-shrink: 0; gap: 12px; }
+    .logo { font-size: 18px; font-weight: 500; white-space: nowrap; display: block; }
+    .search-box { flex-grow: 1; max-width: 600px; position: relative; }
+    .search-box input { width: 100%; padding: 10px 16px; background: ${theme.container}; border: none; border-radius: 8px; color: ${theme.text}; outline: none; font-size: 14px; transition: background 0.2s; }
+    .search-box input:focus { background: ${theme.surface}; box-shadow: inset 0 0 0 1px ${theme.primary}; }
+    .btn-close { background: ${theme.danger}; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: opacity 0.2s; }
+    .btn-close:active { opacity: 0.8; }
+
+    .main { display: flex; flex-grow: 1; overflow: hidden; }
     .sidebar { width: 240px; border-right: 1px solid ${theme.border}; background: ${theme.bg}; padding: 15px 0; overflow-y: auto; flex-shrink: 0; }
-    .nav-item { padding: 10px 24px; font-size: 14px; cursor: pointer; color: ${theme.textSec}; transition: 0.2s; }
+    .nav-item { padding: 12px 24px; font-size: 14px; cursor: pointer; color: ${theme.textSec}; transition: background 0.2s, color 0.2s; }
+    .nav-item:hover { background: ${theme.container}; }
     .nav-item.active { color: ${theme.primary}; background: ${isDark ? '#3c4043' : '#e8f0fe'}; font-weight: 500; }
-    .content { flex-grow: 1; overflow-y: auto; padding: 20px; -webkit-overflow-scrolling: touch; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-    .card { background: ${theme.bg}; border: 1px solid ${theme.border}; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; }
-    .card-top { display: flex; gap: 12px; margin-bottom: 12px; }
-    .icon { width: 50px; height: 50px; background: ${theme.container}; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: ${theme.primary}; flex-shrink: 0; }
-    .info { overflow: hidden; }
-    .title { font-size: 15px; font-weight: 500; margin-bottom: 2px; }
+
+    .content { flex-grow: 1; overflow-y: auto; padding: 20px; -webkit-overflow-scrolling: touch; background: ${theme.surface}; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+    
+    .card { background: ${theme.bg}; border: 1px solid ${theme.border}; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; transition: transform 0.1s; }
+    .card:hover { border-color: ${theme.primary}; }
+    
+    .card-top { display: flex; gap: 16px; margin-bottom: 12px; align-items: center; }
+    .icon { width: 48px; height: 48px; min-width: 48px; background: ${theme.container}; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: ${theme.primary}; font-weight: 700; overflow: hidden; line-height: 1; }
+    .info { overflow: hidden; flex-grow: 1; }
+    .title { font-size: 16px; font-weight: 500; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .creator { font-size: 12px; color: ${theme.textSec}; }
-    .desc { font-size: 13px; color: ${theme.textSec}; line-height: 1.4; height: 36px; overflow: hidden; margin-bottom: 12px; }
-    .tag-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+
+    .desc { font-size: 13px; color: ${theme.textSec}; line-height: 1.4; height: 38px; overflow: hidden; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .tag-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; min-height: 20px; }
     .tag { font-size: 10px; padding: 2px 8px; border-radius: 4px; background: ${theme.container}; color: ${theme.primary}; border: 1px solid ${theme.border}; text-transform: uppercase; font-weight: 700; }
-    .btn-action { width: 100%; padding: 8px; border-radius: 6px; border: none; font-size: 13px; font-weight: 500; cursor: pointer; }
+    
+    .btn-action { width: 100%; padding: 10px; border-radius: 8px; border: none; font-size: 14px; font-weight: 500; cursor: pointer; transition: filter 0.2s; }
     .btn-install { background: ${theme.primary}; color: ${isDark ? '#202124' : '#fff'}; }
     .btn-remove { background: transparent; color: ${theme.primary}; border: 1px solid ${theme.border}; }
+    .btn-action:active { filter: brightness(0.9); }
+
+    @media (max-width: 768px) {
+        .logo { display: none; }
+        .sidebar { width: 200px; }
+    }
+
     @media (max-width: 600px) {
         .main { flex-direction: column; }
-        .sidebar { width: 100%; height: 52px; display: flex; border-right: none; border-bottom: 1px solid ${theme.border}; padding: 0 10px; align-items: center; white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
+        .sidebar { width: 100%; height: auto; display: flex; border-right: none; border-bottom: 1px solid ${theme.border}; padding: 0; align-items: center; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
         .sidebar::-webkit-scrollbar { display: none; }
-        .nav-item { padding: 0 15px; height: 100%; display: flex; align-items: center; border-radius: 0; }
-        .search-box { margin: 0 8px; }
-        .logo { display: none; }
+        .nav-item { padding: 14px 20px; white-space: nowrap; flex-shrink: 0; }
+        .search-box { margin: 0; }
+        .grid { grid-template-columns: 1fr; }
     }
 `;
 document.head.appendChild(style);
@@ -137,15 +155,15 @@ const cats = ["All", "Utility", "Developer", "Customization", "Installed"];
 
 document.body.innerHTML = `
     <header>
-        <div class="logo">Play Store</div>
-        <div class="search-box"><input type="text" id="s" placeholder="Search apps..."></div>
-        <button class="btn-close" onclick="window.close()">Close</button>
+        <div class="logo">Plugin Store</div>
+        <div class="search-box"><input type="text" id="s" placeholder="Search plugins..."></div>
+        <button class="btn-close" onclick="window.location.reload()">Close</button>
     </header>
     <div class="main">
         <div class="sidebar" id="sb"></div>
         <div class="content"><div class="grid" id="g"></div></div>
     </div>
-    <div style="padding: 5px 20px; font-size: 10px; color: ${theme.textSec}; border-top: 1px solid ${theme.border}; background: ${theme.bg};">${buildNumber}</div>
+    <div style="padding: 6px 20px; font-size: 11px; color: ${theme.textSec}; border-top: 1px solid ${theme.border}; background: ${theme.bg}; flex-shrink: 0;">${buildNumber}</div>
 `;
 
 function render() {
@@ -156,17 +174,24 @@ function render() {
     sb.innerHTML = cats.map(c => `<div class="nav-item ${activeCategory === c ? 'active' : ''}" onclick="setCat('${c}')">${c}</div>`).join('');
     g.innerHTML = "";
 
-    availablePlugins.filter(p => {
+    const filtered = availablePlugins.filter(p => {
         const match = p.name.toLowerCase().includes(searchQuery) || p.desc.toLowerCase().includes(searchQuery) || p.tags.some(t => t.toLowerCase().includes(searchQuery));
         const catMatch = activeCategory === "All" || (activeCategory === "Installed" ? installed.includes(p.url) : p.category === activeCategory);
         return match && catMatch;
-    }).forEach(p => {
+    });
+
+    if (filtered.length === 0) {
+        g.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: ${theme.textSec};">No matching plugins found</div>`;
+        return;
+    }
+
+    filtered.forEach(p => {
         const isInst = installed.includes(p.url);
         const card = document.createElement("div");
         card.className = "card";
         card.innerHTML = `
             <div class="card-top">
-                <div class="icon">${p.name}</div>
+                <div class="icon">${p.name.charAt(0)}</div>
                 <div class="info"><div class="title">${p.name}</div><div class="creator">${p.creator}</div></div>
             </div>
             <div class="desc">${p.desc}</div>
@@ -179,12 +204,21 @@ function render() {
     });
 }
 
-window.setCat = (c) => { activeCategory = c; render(); };
+window.setCat = (c) => { 
+    activeCategory = c; 
+    render(); 
+};
+
 window.toggle = (url) => {
     let s = JSON.parse(localStorage.getItem("plugins") || "[]");
     s.includes(url) ? (s = s.filter(u => u !== url)) : s.push(url);
     localStorage.setItem("plugins", JSON.stringify(s));
     render();
 };
-document.getElementById("s").oninput = (e) => { searchQuery = e.target.value.toLowerCase(); render(); };
+
+document.getElementById("s").oninput = (e) => { 
+    searchQuery = e.target.value.toLowerCase(); 
+    render(); 
+};
+
 render();
