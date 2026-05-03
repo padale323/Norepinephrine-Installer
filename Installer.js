@@ -1,26 +1,22 @@
-// Norepinephrine Plugin Installer 
-
-const buildNumber = "Release v1"; // The build number you can manually update
+// Norepinephrine Plugin Installer - Professional Edition
+const buildNumber = "Release v2";
 
 const availablePlugins = [
-    // --- CUSTOMIZATION ---
     {
         name: "Theme Colors",
         category: "Customization",
         tag: { text: "STABLE", color: "#2ea043" }, 
         creator: "padale323",
         commands: ["bg [color]", "text [color]"],
-        desc: "Allows you to change the color of the Background or Text.",
+        desc: "Modify the terminal interface color palette for background and typography.",
         url: "https://raw.githubusercontent.com/padale323/Theme-Plugin/refs/heads/main/plugin.js" 
     },
-
-    // --- UTILITY ---
     {
         name: "Wikipedia",
         category: "Utility",
         creator: "padale323",
         commands: ["wiki [topic]"],
-        desc: "Allows you to get wikipedia summaries on topics.",
+        desc: "Fetch summary data and references directly from the Wikipedia API.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/Wiki/plugin.js" 
     },
     {
@@ -28,15 +24,15 @@ const availablePlugins = [
         category: "Utility",
         creator: "padale323",
         commands: ["dict [word]"],
-        desc: "Allows you to get definitions.",
+        desc: "Lexical definitions and phonetic transcriptions for English terms.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/dictionary/plugin.js" 
     },
     {
         name: "Math",
         category: "Utility",
         creator: "padale323",
-        commands: ["math [expression]"],
-        desc: "Does math calculations.",
+        commands: ["math [expr]"],
+        desc: "Evaluates complex mathematical expressions and algebraic strings.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/math/plugin.js" 
     },
     {
@@ -44,156 +40,129 @@ const availablePlugins = [
         category: "Utility",
         creator: "padale323",
         commands: ["ip"],
-        desc: "Gets your Public IP address.",
+        desc: "Retrieve and display current network external IP address information.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/ip/plugin.js" 
     },
-
-    // --- DEVELOPER TOOLS ---
     {
-        name: "JS",
+        name: "JS Runner",
         category: "Developer",
         creator: "padale323",
-        commands: ["js [code]", "js on", "js off"],
-        desc: "Run JS or treat unrecognized commands as JS.",
+        commands: ["js [code]", "js on"],
+        desc: "Execute JavaScript strings or toggle unrecognized inputs as scripts.",
         url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/js/plugin.js" 
-    },
-    {
-        name: "Console Redirect",
-        category: "Developer",
-        creator: "padale323",
-        commands: ["console-logs on/off", "console-warns on/off", "console-errors on/off", "console-status"],
-        desc: "Redirect browser console output to the terminal.",
-        url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/console-redirect/plugin.js" 
-    },
-    {
-        name: "Echo",
-        category: "Developer",
-        creator: "padale323",
-        commands: ["echo [text]"],
-        desc: "Repeats stuff back to you like an echo.",
-        url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/echo/plugin.js" 
-    },
-    {
-        name: "Delay",
-        category: "Developer",
-        creator: "padale323",
-        commands: ["delay [ms]"],
-        desc: "Creates delay and then resumes.",
-        url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/delay/plugin.js" 
     }
 ];
 
-const colors = {
+// Theme configuration
+const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+const theme = isDark ? {
     bg: "#0d1117",
     surface: "#161b22",
     border: "#30363d",
     text: "#c9d1d9",
     muted: "#8b949e",
     primary: "#58a6ff",
-    danger: "#f78166"
+    accent: "#f78166"
+} : {
+    bg: "#f9fafb",
+    surface: "#ffffff",
+    border: "#d0d7de",
+    text: "#111827",
+    muted: "#656d76",
+    primary: "#0969da",
+    accent: "#cf222e"
 };
 
-// CSS for custom scrollbar
 const style = document.createElement('style');
 style.innerHTML = `
-    #plugin-grid::-webkit-scrollbar { width: 8px; }
-    #plugin-grid::-webkit-scrollbar-track { background: ${colors.bg}; }
-    #plugin-grid::-webkit-scrollbar-thumb { background: ${colors.border}; border-radius: 10px; }
-    #plugin-grid::-webkit-scrollbar-thumb:hover { background: ${colors.muted}; }
+    * { box-sizing: border-box; }
+    body { background-color: ${theme.bg}; color: ${theme.text}; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; line-height: 1.5; }
+    .container { display: flex; flex-direction: column; height: 100vh; max-width: 1100px; margin: 0 auto; border-left: 1px solid ${theme.border}; border-right: 1px solid ${theme.border}; background: ${theme.surface}; }
+    
+    header { padding: 16px 24px; border-bottom: 1px solid ${theme.border}; display: flex; align-items: center; justify-content: space-between; }
+    .search-bar input { width: 400px; padding: 6px 12px; background: ${theme.bg}; border: 1px solid ${theme.border}; border-radius: 6px; color: ${theme.text}; font-size: 14px; }
+    
+    .main-layout { display: flex; flex-grow: 1; overflow: hidden; }
+    .sidebar { width: 240px; border-right: 1px solid ${theme.border}; padding: 16px 0; background: ${theme.surface}; }
+    .sidebar-item { padding: 8px 24px; font-size: 14px; cursor: pointer; color: ${theme.muted}; }
+    .sidebar-item:hover { background: ${theme.bg}; color: ${theme.text}; }
+    .sidebar-item.active { color: ${theme.text}; font-weight: 600; border-left: 2px solid ${theme.primary}; padding-left: 22px; }
+
+    .content-area { flex-grow: 1; overflow-y: auto; padding: 24px; }
+    .plugin-list { display: flex; flex-direction: column; gap: 1px; background: ${theme.border}; border: 1px solid ${theme.border}; border-radius: 6px; overflow: hidden; }
+    .plugin-card { background: ${theme.surface}; padding: 16px; display: grid; grid-template-columns: 1fr 120px; align-items: center; }
+    
+    .badge { font-size: 10px; padding: 1px 6px; border-radius: 10px; font-weight: 600; border: 1px solid; }
+    .cmd-tag { font-family: monospace; font-size: 11px; color: ${theme.primary}; background: ${isDark ? 'rgba(88,166,255,0.1)' : '#ddf4ff'}; padding: 2px 6px; border-radius: 4px; border: 1px solid ${theme.border}; }
+    
+    .btn { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid ${theme.border}; }
+    .btn-install { background: ${theme.primary}; color: #fff; border: none; }
+    .btn-remove { background: transparent; color: ${theme.accent}; border-color: ${theme.accent}; }
+
+    footer { padding: 12px 24px; border-top: 1px solid ${theme.border}; font-size: 12px; color: ${theme.muted}; display: flex; justify-content: space-between; }
 `;
 document.head.appendChild(style);
 
-document.body.style.backgroundColor = colors.bg;
-document.body.style.margin = "0";
-document.body.style.overflow = "hidden";
-
 document.body.innerHTML = `
-    <div style="padding: 32px; color: ${colors.text}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; max-width: 900px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; box-sizing: border-box; position: relative;">
-        <div style="margin-bottom: 24px; flex-shrink: 0;">
-            <h1 style="font-size: 20px; font-weight: 600; margin: 0 0 8px 0;">Plugin Installer</h1>
-            <p style="font-size: 14px; color: ${colors.muted}; margin: 0;">Manage terminal extensions and community plugins.</p>
+<div class="container">
+    <header>
+        <div style="font-weight: 600;">Plugin Marketplace</div>
+        <div class="search-bar"><input type="text" id="pluginSearch" placeholder="Search extensions..."></div>
+        <button class="btn" onclick="window.location.reload()">Refresh</button>
+    </header>
+    <div class="main-layout">
+        <div class="sidebar">
+            <div class="sidebar-item active">All Extensions</div>
+            <div class="sidebar-item">Utility</div>
+            <div class="sidebar-item">Developer</div>
+            <div class="sidebar-item">Customization</div>
         </div>
-        
-        <div id="plugin-grid" style="border: 1px solid ${colors.border}; border-radius: 6px; overflow-y: auto; background: ${colors.surface}; flex-grow: 1; min-height: 0;"></div>
-        
-        <div style="margin-top: 24px; display: flex; justify-content: flex-end; flex-shrink: 0; align-items: center; gap: 16px;">
-            <button id="exit-btn" style="background: ${colors.surface}; color: ${colors.text}; border: 1px solid ${colors.border}; padding: 6px 12px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; border-radius: 6px;">
-                Restart & Return
-            </button>
-        </div>
-
-        <div style="position: absolute; bottom: 12px; right: 12px; font-size: 10px; color: ${colors.muted}; font-family: monospace; background: rgba(255,255,255,0.03); padding: 2px 8px; border-radius: 12px; border: 1px solid ${colors.border};">
-            BUILD: ${buildNumber}
+        <div class="content-area">
+            <div style="font-size: 12px; font-weight: 600; color: ${theme.muted}; text-transform: uppercase; margin-bottom: 12px;">Available Packages</div>
+            <div id="pluginGrid" class="plugin-list"></div>
         </div>
     </div>
+    <footer>
+        <div>System Build: ${buildNumber}</div>
+        <div>Mode: ${isDark ? 'Dark' : 'Light'}</div>
+    </footer>
+</div>
 `;
 
-const grid = document.getElementById("plugin-grid");
-const categories = [...new Set(availablePlugins.map(p => p.category))];
+function renderPlugins(filter = "") {
+    const grid = document.getElementById("pluginGrid");
+    grid.innerHTML = "";
+    const filtered = availablePlugins.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
 
-categories.forEach(cat => {
-    const header = document.createElement("div");
-    header.style.cssText = `position: sticky; top: 0; z-index: 10; padding: 10px 16px; background: #090c10; font-size: 11px; font-weight: 700; color: ${colors.muted}; text-transform: uppercase; border-bottom: 1px solid ${colors.border}; letter-spacing: 0.5px;`;
-    header.innerText = cat;
-    grid.appendChild(header);
-
-    availablePlugins.filter(p => p.category === cat).forEach((plugin) => {
-        let installedList = JSON.parse(localStorage.getItem("plugins") || "[]");
-        const isInstalled = installedList.includes(plugin.url);
-        const globalIndex = availablePlugins.findIndex(p => p.url === plugin.url);
-
-        const tagHtml = plugin.tag 
-            ? `<span style="font-size: 10px; color: ${plugin.tag.color}; border: 1px solid ${plugin.tag.color}; padding: 0px 5px; border-radius: 10px; font-weight: 700; text-transform: uppercase;">${plugin.tag.text}</span>`
-            : '';
-
-        const commandHtml = plugin.commands.map(cmd => `
-            <code style="font-family: ui-monospace, monospace; font-size: 11px; color: ${colors.primary}; background: rgba(88, 166, 255, 0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(88, 166, 255, 0.2); white-space: nowrap;">
-                ${cmd}
-            </code>
-        `).join('');
-
-        const row = document.createElement("div");
-        row.style.cssText = `display: grid; grid-template-columns: 1fr 140px; padding: 16px; border-bottom: 1px solid ${colors.border}; align-items: center;`;
-
-        row.innerHTML = `
+    filtered.forEach(plugin => {
+        const installed = JSON.parse(localStorage.getItem("plugins") || "[]").includes(plugin.url);
+        const card = document.createElement("div");
+        card.className = "plugin-card";
+        card.innerHTML = `
             <div>
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
                     <span style="font-weight: 600; font-size: 14px;">${plugin.name}</span>
-                    ${tagHtml}
-                    <span style="font-size: 11px; color: ${colors.muted};">by ${plugin.creator}</span>
+                    ${plugin.tag ? `<span class="badge" style="color:${plugin.tag.color}; border-color:${plugin.tag.color}">${plugin.tag.text}</span>` : ''}
                 </div>
-                <div style="font-size: 13px; color: ${colors.muted}; margin-bottom: 10px;">${plugin.desc}</div>
-                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                    ${commandHtml}
-                </div>
+                <div style="font-size: 13px; color: ${theme.muted}; margin: 4px 0;">${plugin.desc}</div>
+                <div style="display: flex; gap: 4px;">${plugin.commands.map(c => `<span class="cmd-tag">${c}</span>`).join('')}</div>
             </div>
             <div style="text-align: right;">
-                <button onclick="togglePlugin('${plugin.url}')" id="btn-${globalIndex}" 
-                    style="background: ${isInstalled ? 'transparent' : colors.surface}; 
-                           color: ${isInstalled ? colors.danger : colors.text}; 
-                           border: 1px solid ${isInstalled ? colors.danger : colors.border}; 
-                           padding: 6px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 150ms;">
-                    ${isInstalled ? 'Remove' : 'Install'}
+                <button class="btn ${installed ? 'btn-remove' : 'btn-install'}" onclick="togglePlugin('${plugin.url}')">
+                    ${installed ? 'Uninstall' : 'Install'}
                 </button>
             </div>
         `;
-        grid.appendChild(row);
+        grid.appendChild(card);
     });
-});
+}
 
 window.togglePlugin = function(url) {
     let stored = JSON.parse(localStorage.getItem("plugins") || "[]");
     stored.includes(url) ? (stored = stored.filter(p => p !== url)) : stored.push(url);
     localStorage.setItem("plugins", JSON.stringify(stored));
-    
-    const pIndex = availablePlugins.findIndex(p => p.url === url);
-    const btn = document.getElementById(`btn-${pIndex}`);
-    const isNowInstalled = stored.includes(url);
-
-    btn.style.background = isNowInstalled ? 'transparent' : colors.surface;
-    btn.style.color = isNowInstalled ? colors.danger : colors.text;
-    btn.style.borderColor = isNowInstalled ? colors.danger : colors.border;
-    btn.innerText = isNowInstalled ? "Remove" : "Install";
+    renderPlugins(document.getElementById("pluginSearch").value);
 };
 
-document.getElementById("exit-btn").onclick = () => window.location.reload();
+document.getElementById("pluginSearch").oninput = (e) => renderPlugins(e.target.value);
+renderPlugins();
