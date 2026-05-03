@@ -1,155 +1,191 @@
-// Norepinephrine Plugin Installer - Professional Edition
-const buildNumber = "Release v2";
+// Norepinephrine Plugin Installer
+const buildNumber = "Build 3";
 
 const availablePlugins = [
-    {
-        name: "Theme Colors",
-        category: "Customization",
-        tag: { text: "STABLE", color: "#2ea043" }, 
-        creator: "padale323",
-        commands: ["bg [color]", "text [color]"],
-        desc: "Modify the terminal interface color palette for background and typography.",
-        url: "https://raw.githubusercontent.com/padale323/Theme-Plugin/refs/heads/main/plugin.js" 
-    },
-    {
-        name: "Wikipedia",
-        category: "Utility",
-        creator: "padale323",
-        commands: ["wiki [topic]"],
-        desc: "Fetch summary data and references directly from the Wikipedia API.",
-        url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/Wiki/plugin.js" 
-    },
-    {
-        name: "Dictionary",
-        category: "Utility",
-        creator: "padale323",
-        commands: ["dict [word]"],
-        desc: "Lexical definitions and phonetic transcriptions for English terms.",
-        url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/dictionary/plugin.js" 
-    },
-    {
-        name: "Math",
-        category: "Utility",
-        creator: "padale323",
-        commands: ["math [expr]"],
-        desc: "Evaluates complex mathematical expressions and algebraic strings.",
-        url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/math/plugin.js" 
-    },
-    {
-        name: "Public IP",
-        category: "Utility",
-        creator: "padale323",
-        commands: ["ip"],
-        desc: "Retrieve and display current network external IP address information.",
-        url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/ip/plugin.js" 
-    },
-    {
-        name: "JS Runner",
-        category: "Developer",
-        creator: "padale323",
-        commands: ["js [code]", "js on"],
-        desc: "Execute JavaScript strings or toggle unrecognized inputs as scripts.",
-        url: "https://raw.githubusercontent.com/padale323/Norepinephrine-Installer/refs/heads/main/Official/js/plugin.js" 
-    }
+    // --- UTILITY ---
+    { name: "Wikipedia", category: "Utility", creator: "padale323", rating: "4.8", size: "1.2 MB", commands: ["wiki [topic]"], singleCommand: true, desc: "Fetch summary data directly from the Wikipedia API." },
+    { name: "Dictionary", category: "Utility", creator: "padale323", rating: "4.5", size: "850 KB", commands: ["dict [word]"], singleCommand: true, desc: "Lexical definitions and phonetic transcriptions." },
+    { name: "Math Solver", category: "Utility", creator: "padale323", rating: "4.9", size: "2.1 MB", commands: ["math [expr]"], singleCommand: true, desc: "Evaluates complex mathematical expressions." },
+    { name: "Public IP", category: "Utility", creator: "padale323", rating: "4.2", size: "120 KB", commands: ["ip"], singleCommand: true, desc: "Retrieve your external IP address information." },
+    { name: "Weather Fetch", category: "Utility", creator: "weather_dev", rating: "4.6", size: "3.4 MB", commands: ["weather", "forecast"], singleCommand: false, desc: "Get real-time weather data for your location." },
+    
+    // --- DEVELOPER ---
+    { name: "JS Runner", category: "Developer", creator: "padale323", rating: "4.7", size: "5.0 MB", commands: ["js [code]", "js on", "js off"], singleCommand: false, desc: "Execute JavaScript strings natively." },
+    { name: "Console Redirect", category: "Developer", creator: "padale323", rating: "4.1", size: "900 KB", commands: ["console-logs on", "console-status"], singleCommand: false, desc: "Pipes browser logs directly to the UI terminal." },
+    { name: "JSON Formatter", category: "Developer", creator: "dev_tools", rating: "4.9", size: "1.5 MB", commands: ["format-json"], singleCommand: true, desc: "Pretty-print messy JSON payloads instantly." },
+    { name: "REST Client", category: "Developer", creator: "api_master", rating: "4.8", size: "8.2 MB", commands: ["get", "post", "put", "delete"], singleCommand: false, desc: "Make HTTP requests directly from the command line." },
+
+    // --- CUSTOMIZATION ---
+    { name: "Theme Colors", category: "Customization", creator: "padale323", rating: "4.4", size: "300 KB", commands: ["bg [color]", "text [color]"], singleCommand: false, desc: "Modify the terminal interface color palette." },
+    { name: "Font Override", category: "Customization", creator: "ui_guy", rating: "4.3", size: "450 KB", commands: ["font [name]"], singleCommand: true, desc: "Change the global font family of the environment." },
+    { name: "Prompt Stylizer", category: "Customization", creator: "shell_fan", rating: "4.6", size: "600 KB", commands: ["prompt set", "prompt reset", "prompt preview"], singleCommand: false, desc: "Customize the input chevron and user string." }
 ];
 
-// Theme configuration
+// Google Material Theme variables
 const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 const theme = isDark ? {
-    bg: "#0d1117",
-    surface: "#161b22",
-    border: "#30363d",
-    text: "#c9d1d9",
-    muted: "#8b949e",
-    primary: "#58a6ff",
-    accent: "#f78166"
+    bg: "#202124",         // Google dark mode background
+    surface: "#303134",    // Google dark mode surface
+    border: "#5f6368",
+    text: "#e8eaed",
+    textSecondary: "#9aa0a6",
+    primary: "#8ab4f8",    // Material blue (dark mode)
+    primaryContainer: "#3c4043",
+    installBtn: "#8ab4f8",
+    installBtnText: "#202124",
+    star: "#fbbc04"
 } : {
-    bg: "#f9fafb",
+    bg: "#ffffff",
     surface: "#ffffff",
-    border: "#d0d7de",
-    text: "#111827",
-    muted: "#656d76",
-    primary: "#0969da",
-    accent: "#cf222e"
+    border: "#dadce0",
+    text: "#202124",
+    textSecondary: "#5f6368",
+    primary: "#0b57d0",    // Material You blue
+    primaryContainer: "#f1f3f4",
+    installBtn: "#0b57d0",
+    installBtnText: "#ffffff",
+    star: "#fbbc04"
 };
 
 const style = document.createElement('style');
 style.innerHTML = `
-    * { box-sizing: border-box; }
-    body { background-color: ${theme.bg}; color: ${theme.text}; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; line-height: 1.5; }
-    .container { display: flex; flex-direction: column; height: 100vh; max-width: 1100px; margin: 0 auto; border-left: 1px solid ${theme.border}; border-right: 1px solid ${theme.border}; background: ${theme.surface}; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: ${theme.bg}; color: ${theme.text}; font-family: 'Roboto', 'Google Sans', -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
     
-    header { padding: 16px 24px; border-bottom: 1px solid ${theme.border}; display: flex; align-items: center; justify-content: space-between; }
-    .search-bar input { width: 400px; padding: 6px 12px; background: ${theme.bg}; border: 1px solid ${theme.border}; border-radius: 6px; color: ${theme.text}; font-size: 14px; }
+    .app-container { max-width: 860px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; background: ${theme.bg}; border-left: 1px solid ${theme.border}; border-right: 1px solid ${theme.border}; }
     
-    .main-layout { display: flex; flex-grow: 1; overflow: hidden; }
-    .sidebar { width: 240px; border-right: 1px solid ${theme.border}; padding: 16px 0; background: ${theme.surface}; }
-    .sidebar-item { padding: 8px 24px; font-size: 14px; cursor: pointer; color: ${theme.muted}; }
-    .sidebar-item:hover { background: ${theme.bg}; color: ${theme.text}; }
-    .sidebar-item.active { color: ${theme.text}; font-weight: 600; border-left: 2px solid ${theme.primary}; padding-left: 22px; }
+    /* Header & Search */
+    header { padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid ${theme.border}; position: sticky; top: 0; background: ${theme.bg}; z-index: 100; }
+    .brand-logo { font-size: 20px; font-weight: 500; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px;}
+    .search-wrapper { flex-grow: 1; max-width: 400px; position: relative; }
+    .search-wrapper input { width: 100%; padding: 12px 16px 12px 40px; background: ${theme.primaryContainer}; border: none; border-radius: 24px; color: ${theme.text}; font-size: 15px; outline: none; }
+    .search-wrapper input:focus { background: ${theme.surface}; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); opacity: 0.6; font-size: 16px; }
+    
+    .btn-close { background: #dc362e; color: white; border: none; padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+    .btn-close:hover { background: #b32a24; }
 
+    /* Filter Chips */
+    .filter-scroll { display: flex; gap: 8px; padding: 16px 24px; overflow-x: auto; border-bottom: 1px solid ${theme.border}; scrollbar-width: none; }
+    .filter-scroll::-webkit-scrollbar { display: none; }
+    .chip { padding: 8px 16px; background: ${theme.surface}; border: 1px solid ${theme.border}; border-radius: 16px; font-size: 14px; color: ${theme.textSecondary}; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+    .chip:hover { background: ${theme.primaryContainer}; }
+    .chip.active { background: ${isDark ? '#3f4a5c' : '#e8f0fe'}; color: ${theme.primary}; border-color: transparent; font-weight: 500; }
+
+    /* App Grid */
     .content-area { flex-grow: 1; overflow-y: auto; padding: 24px; }
-    .plugin-list { display: flex; flex-direction: column; gap: 1px; background: ${theme.border}; border: 1px solid ${theme.border}; border-radius: 6px; overflow: hidden; }
-    .plugin-card { background: ${theme.surface}; padding: 16px; display: grid; grid-template-columns: 1fr 120px; align-items: center; }
+    .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 24px; }
     
-    .badge { font-size: 10px; padding: 1px 6px; border-radius: 10px; font-weight: 600; border: 1px solid; }
-    .cmd-tag { font-family: monospace; font-size: 11px; color: ${theme.primary}; background: ${isDark ? 'rgba(88,166,255,0.1)' : '#ddf4ff'}; padding: 2px 6px; border-radius: 4px; border: 1px solid ${theme.border}; }
+    .app-card { display: flex; gap: 16px; align-items: center; cursor: pointer; border-radius: 12px; padding: 8px; transition: background 0.2s; }
+    .app-card:hover { background: ${theme.primaryContainer}; }
     
-    .btn { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid ${theme.border}; }
-    .btn-install { background: ${theme.primary}; color: #fff; border: none; }
-    .btn-remove { background: transparent; color: ${theme.accent}; border-color: ${theme.accent}; }
-
-    footer { padding: 12px 24px; border-top: 1px solid ${theme.border}; font-size: 12px; color: ${theme.muted}; display: flex; justify-content: space-between; }
+    .app-icon { width: 64px; height: 64px; border-radius: 12px; background: ${theme.primaryContainer}; border: 1px solid ${theme.border}; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 600; color: ${theme.primary}; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+    
+    .app-info { flex-grow: 1; overflow: hidden; }
+    .app-title { font-size: 16px; font-weight: 400; color: ${theme.text}; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .app-meta { font-size: 12px; color: ${theme.textSecondary}; display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
+    .star { color: ${theme.star}; font-size: 12px; }
+    
+    .btn-install { padding: 6px 24px; border-radius: 20px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: 0.2s; }
+    .btn-get { background: ${theme.installBtn}; color: ${theme.installBtnText}; }
+    .btn-get:hover { filter: brightness(0.9); box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .btn-installed { background: transparent; color: ${theme.primary}; border: 1px solid ${theme.border}; }
+    
+    .empty-state { text-align: center; padding: 48px; color: ${theme.textSecondary}; }
 `;
 document.head.appendChild(style);
 
+// Initial State
+let activeCategory = "For You";
+let searchQuery = "";
+
 document.body.innerHTML = `
-<div class="container">
+<div class="app-container">
     <header>
-        <div style="font-weight: 600;">Plugin Marketplace</div>
-        <div class="search-bar"><input type="text" id="pluginSearch" placeholder="Search extensions..."></div>
-        <button class="btn" onclick="window.location.reload()">Refresh</button>
+        <div class="brand-logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="${theme.text}"><path d="M19 8l-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"/></svg>
+            Play Plugins
+        </div>
+        <div class="search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Search apps & plugins...">
+        </div>
+        <button class="btn-close" onclick="window.close()">Close</button>
     </header>
-    <div class="main-layout">
-        <div class="sidebar">
-            <div class="sidebar-item active">All Extensions</div>
-            <div class="sidebar-item">Utility</div>
-            <div class="sidebar-item">Developer</div>
-            <div class="sidebar-item">Customization</div>
+
+    <div class="filter-scroll" id="filterBar">
         </div>
-        <div class="content-area">
-            <div style="font-size: 12px; font-weight: 600; color: ${theme.muted}; text-transform: uppercase; margin-bottom: 12px;">Available Packages</div>
-            <div id="pluginGrid" class="plugin-list"></div>
-        </div>
+
+    <div class="content-area">
+        <div id="appGrid" class="app-grid"></div>
     </div>
-    <footer>
-        <div>System Build: ${buildNumber}</div>
-        <div>Mode: ${isDark ? 'Dark' : 'Light'}</div>
-    </footer>
 </div>
 `;
 
-function renderPlugins(filter = "") {
-    const grid = document.getElementById("pluginGrid");
+function renderChips() {
+    const categories = ["For You", "Utility", "Developer", "Customization", "Single Command", "Installed"];
+    const bar = document.getElementById("filterBar");
+    bar.innerHTML = categories.map(cat => `
+        <div class="chip ${activeCategory === cat ? 'active' : ''}" onclick="setCategory('${cat}')">
+            ${cat}
+        </div>
+    `).join('');
+}
+
+window.setCategory = function(cat) {
+    activeCategory = cat;
+    renderChips();
+    renderApps();
+};
+
+function renderApps() {
+    const grid = document.getElementById("appGrid");
     grid.innerHTML = "";
-    const filtered = availablePlugins.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
+    
+    // Get installed plugins from LocalStorage safely
+    let installed = [];
+    try { installed = JSON.parse(localStorage.getItem("play_plugins") || "[]"); } catch(e) {}
+
+    // Filter Logic
+    let filtered = availablePlugins.filter(p => {
+        // Search text match
+        const matchesSearch = p.name.toLowerCase().includes(searchQuery) || p.desc.toLowerCase().includes(searchQuery);
+        
+        // Category match
+        let matchesCategory = false;
+        if (activeCategory === "For You") matchesCategory = true;
+        else if (activeCategory === "Single Command") matchesCategory = p.singleCommand;
+        else if (activeCategory === "Installed") matchesCategory = installed.includes(p.name);
+        else matchesCategory = p.category === activeCategory;
+
+        return matchesSearch && matchesCategory;
+    });
+
+    if (filtered.length === 0) {
+        grid.innerHTML = `<div class="empty-state"><h3>No results found</h3><p>Try adjusting your search or filters.</p></div>`;
+        return;
+    }
 
     filtered.forEach(plugin => {
-        const installed = JSON.parse(localStorage.getItem("plugins") || "[]").includes(plugin.url);
+        const isInstalled = installed.includes(plugin.name);
+        const iconChar = plugin.name.charAt(0).toUpperCase();
+        
         const card = document.createElement("div");
-        card.className = "plugin-card";
+        card.className = "app-card";
         card.innerHTML = `
-            <div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-weight: 600; font-size: 14px;">${plugin.name}</span>
-                    ${plugin.tag ? `<span class="badge" style="color:${plugin.tag.color}; border-color:${plugin.tag.color}">${plugin.tag.text}</span>` : ''}
+            <div class="app-icon">${iconChar}</div>
+            <div class="app-info">
+                <div class="app-title">${plugin.name}</div>
+                <div class="app-meta">
+                    ${plugin.rating} <span class="star">★</span> • ${plugin.size}
                 </div>
-                <div style="font-size: 13px; color: ${theme.muted}; margin: 4px 0;">${plugin.desc}</div>
-                <div style="display: flex; gap: 4px;">${plugin.commands.map(c => `<span class="cmd-tag">${c}</span>`).join('')}</div>
+                <div style="font-size: 11px; color: ${theme.textSecondary}; display: flex; gap: 4px; overflow: hidden;">
+                    ${plugin.commands.map(c => `<span style="background: ${theme.primaryContainer}; padding: 2px 6px; border-radius: 4px; white-space: nowrap;">${c}</span>`).join('')}
+                </div>
             </div>
-            <div style="text-align: right;">
-                <button class="btn ${installed ? 'btn-remove' : 'btn-install'}" onclick="togglePlugin('${plugin.url}')">
-                    ${installed ? 'Uninstall' : 'Install'}
+            <div style="padding-left: 8px;">
+                <button class="btn-install ${isInstalled ? 'btn-installed' : 'btn-get'}" onclick="toggleInstall('${plugin.name}', event)">
+                    ${isInstalled ? 'Installed' : 'Install'}
                 </button>
             </div>
         `;
@@ -157,12 +193,27 @@ function renderPlugins(filter = "") {
     });
 }
 
-window.togglePlugin = function(url) {
-    let stored = JSON.parse(localStorage.getItem("plugins") || "[]");
-    stored.includes(url) ? (stored = stored.filter(p => p !== url)) : stored.push(url);
-    localStorage.setItem("plugins", JSON.stringify(stored));
-    renderPlugins(document.getElementById("pluginSearch").value);
+window.toggleInstall = function(pluginName, event) {
+    event.stopPropagation(); // Prevent card click
+    let installed = [];
+    try { installed = JSON.parse(localStorage.getItem("play_plugins") || "[]"); } catch(e) {}
+    
+    if (installed.includes(pluginName)) {
+        installed = installed.filter(n => n !== pluginName);
+    } else {
+        installed.push(pluginName);
+    }
+    
+    localStorage.setItem("play_plugins", JSON.stringify(installed));
+    renderApps(); // Re-render to update button states immediately
 };
 
-document.getElementById("pluginSearch").oninput = (e) => renderPlugins(e.target.value);
-renderPlugins();
+// Search listener
+document.getElementById("searchInput").addEventListener("input", (e) => {
+    searchQuery = e.target.value.toLowerCase();
+    renderApps();
+});
+
+// Initialize
+renderChips();
+renderApps();
