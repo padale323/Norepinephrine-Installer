@@ -1,0 +1,222 @@
+// Retro Terminal Theme Plugin for Norepinephrine
+// Applies the classic monospace aesthetic from index-23.html to the modern index.html
+// Author: Parker
+// Version: 1.0
+
+window.registerCommand('retro-theme', 'Apply classic monospace retro terminal styling', async function() {
+    applyRetroTheme();
+    NoreAPI.print('Retro theme applied. Type "modern-theme" to revert.');
+});
+
+window.registerCommand('modern-theme', 'Revert to modern Inter + JetBrains Mono styling', async function() {
+    revertRetroTheme();
+    NoreAPI.print('Modern theme applied.');
+});
+
+function applyRetroTheme() {
+    // Remove existing style tag if it exists
+    let existingStyle = document.getElementById('retro-theme-override');
+    if (existingStyle) existingStyle.remove();
+
+    // Create new style tag with retro overrides
+    const style = document.createElement('style');
+    style.id = 'retro-theme-override';
+    style.textContent = `
+        /* ========================================
+           RETRO TERMINAL THEME OVERRIDES
+           Classic monospace aesthetic from index-23.html
+           ======================================== */
+
+        :root {
+            --glow: #ffffff;
+            --bg: #0a0c10;
+            --dim: #8b949e;
+            --blue: #58a6ff;
+            --warn: #ffcc00;
+            --danger: #ff4444;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--glow);
+            font-family: 'Consolas', 'Courier New', monospace !important;
+        }
+
+        #terminal-container {
+            max-width: 100% !important;
+            padding: 15px 20px !important;
+            margin: 0 !important;
+            flex-direction: column;
+            display: flex;
+        }
+
+        #output {
+            flex: 1;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-size: 13px !important;
+            line-height: 1.6;
+            word-break: break-word;
+            -webkit-overflow-scrolling: touch;
+            padding: 0 !important;
+            margin: 0 !important;
+            font-family: 'Consolas', 'Courier New', monospace !important;
+        }
+
+        /* Remove fade-in animation for retro instant feel */
+        .line {
+            opacity: 1 !important;
+            transform: none !important;
+            animation: none !important;
+            line-height: 1.6;
+            margin-bottom: 0 !important;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .prompt-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            background: transparent;
+            border-top: 1px solid #21262d;
+            position: sticky;
+            bottom: 0;
+            gap: 0;
+            margin-top: 0 !important;
+        }
+
+        .prompt-label {
+            color: var(--blue);
+            font-weight: bold;
+            white-space: nowrap;
+            user-select: none;
+            margin-right: 10px;
+            font-family: 'Consolas', 'Courier New', monospace !important;
+        }
+
+        #tIn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--glow);
+            outline: none;
+            font-family: 'Consolas', 'Courier New', monospace !important;
+            font-size: 16px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            caret-color: var(--blue);
+            -webkit-appearance: none;
+            border-radius: 0;
+        }
+
+        #tIn:focus {
+            outline: none;
+        }
+
+        /* Remove the padding buffer div effect */
+        #terminal-container > div:last-child {
+            height: 0 !important;
+        }
+
+        /* Color overrides */
+        .prompt { color: var(--blue); font-weight: bold; }
+        .cmd { color: #d2a8ff; font-weight: bold; }
+        .warning-text { color: var(--warn); }
+        .danger-text { color: var(--danger); font-weight: bold; }
+        .dim { color: var(--dim); }
+
+        /* Type classes remapped */
+        .type-system { color: var(--dim); }
+        .type-success { color: #00ff00; }
+        .type-error { color: var(--danger); }
+        .type-input { color: var(--blue); font-weight: bold; }
+        .type-warning { color: var(--warn); }
+
+        /* Logo text becomes ASCII art style */
+        .logo-text {
+            font-size: 13px !important;
+            font-weight: normal !important;
+            letter-spacing: 0 !important;
+            color: var(--glow);
+            line-height: 1.2;
+            margin: 10px 0 !important;
+            text-transform: none;
+            font-family: 'Consolas', 'Courier New', monospace !important;
+            white-space: pre;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid #21262d;
+            margin: 10px 0;
+        }
+
+        #app-overlay {
+            font-family: 'Consolas', 'Courier New', monospace !important;
+            color: var(--glow);
+            background: var(--bg);
+            font-size: 13px;
+        }
+
+        /* Hide Tailwind/modern elements if they exist */
+        @media (min-width: 768px) {
+            #terminal-container {
+                padding: 15px 20px !important;
+            }
+        }
+
+        /* Ensure scrollbar is hidden */
+        #terminal-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        #terminal-container {
+            scrollbar-width: none;
+        }
+    `;
+
+    document.head.appendChild(style);
+
+    // Also fix the prompt label text to match classic style
+    const promptLabel = document.querySelector('.prompt-label');
+    if (promptLabel) {
+        promptLabel.textContent = '>';
+    }
+
+    // Store preference
+    try {
+        localStorage.setItem('nore_theme', 'retro');
+    } catch(e) {}
+}
+
+function revertRetroTheme() {
+    const style = document.getElementById('retro-theme-override');
+    if (style) style.remove();
+
+    // Restore modern prompt label
+    const promptLabel = document.querySelector('.prompt-label');
+    if (promptLabel) {
+        promptLabel.textContent = 'nore@terminal:~$';
+    }
+
+    // Store preference
+    try {
+        localStorage.setItem('nore_theme', 'modern');
+    } catch(e) {}
+}
+
+// Auto-apply theme on load if previously selected
+(function() {
+    try {
+        const savedTheme = localStorage.getItem('nore_theme');
+        if (savedTheme === 'retro') {
+            // Defer to next tick to ensure DOM is ready
+            setTimeout(() => applyRetroTheme(), 100);
+        }
+    } catch(e) {}
+})();
