@@ -15,28 +15,22 @@
     let conversationHistory = JSON.parse(NoreAPI.getStorage(CONVERSATION_HISTORY_KEY) || "[]");
 
     // Load Google Generative AI library
+    // Load Google Generative AI library via ESM
     async function loadGeminiLibrary() {
         if (GenAI) return true; // Already loaded
         
         try {
-            // Load the UMD build which works in browsers
-            const script = document.createElement("script");
-            script.src = "https://cdn.jsdelivr.net/npm/@google/generative-ai@0.11.0/dist/index.umd.js";
-            script.async = true;
+            // Dynamically import the ES module instead of using a script tag
+            const module = await import("https://esm.run/@google/generative-ai");
             
-            return new Promise((resolve, reject) => {
-                script.onload = () => {
-                    // Access the library from global scope
-                    GenAI = window.GoogleGenerativeAI;
-                    if (!GenAI) {
-                        reject(new Error("Failed to load Gemini library"));
-                    } else {
-                        resolve(true);
-                    }
-                };
-                script.onerror = () => reject(new Error("Failed to load Gemini library script"));
-                document.head.appendChild(script);
-            });
+            // Assign the imported module to our GenAI variable
+            GenAI = module;
+            
+            if (!GenAI || !GenAI.GoogleGenerativeAI) {
+                throw new Error("Library loaded but GoogleGenerativeAI not found");
+            }
+            
+            return true;
         } catch (e) {
             NoreAPI.print(`<span class="danger-text">Error loading Gemini library: ${e.message}</span>`, true);
             return false;
