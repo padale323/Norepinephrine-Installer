@@ -1,305 +1,127 @@
 // @request-earlyload
+(()=>{
+const K="shadowbyte_groq_api_key",H="shadowbyte_conv",SP="shadowbyte_sp";
+const DSP=`You are ShadowByte, a sharp AI assistant in Norepinephrine Terminal. Be concise. Slightly edgy operator-style personality. Call the user "Operator" sometimes.`;
+let key=NoreAPI.getStorage(K)||"",hist=JSON.parse(NoreAPI.getStorage(H)||"[]"),sysp=NoreAPI.getStorage(SP)||DSP;
+const save=()=>NoreAPI.setStorage(H,JSON.stringify(hist));
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 
-(function () {
-    const PLUGIN_NAME = "shadowbyte";
-    const API_KEY_STORAGE_KEY = "shadowbyte_groq_api_key";
-    const CONVERSATION_HISTORY_KEY = "shadowbyte_conversation_history";
-    const SYSTEM_PROMPT_KEY = "shadowbyte_system_prompt";
+function launch(){NoreAPI.launchApp(c=>{
+c.innerHTML=`<style>
+#sb{display:flex;height:100dvh;background:#17171c;font-family:Inter,sans-serif;color:#e2e8f0;overflow:hidden}
+#sb-side{width:260px;background:#1e1e24;border-right:1px solid #374151;display:flex;flex-direction:column;flex-shrink:0}
+#sb-side-head{padding:16px;display:flex;align-items:center;justify-content:space-between}
+#sb-logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:1.1rem}
+#sb-logo i{color:#3b82f6}
+#sb-new{margin:0 12px 12px;background:#374151;border:1px solid #4b5563;color:#e2e8f0;padding:10px;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-size:.875rem;font-family:inherit}
+#sb-new:hover{background:#4b5563}
+#sb-hist{flex:1;padding:8px 12px;color:#6b7280;font-size:.875rem;text-align:center;margin-top:20px}
+#sb-user{padding:12px;border-top:1px solid #374151;display:flex;align-items:center;gap:10px;font-size:.875rem}
+#sb-avatar{width:32px;height:32px;border-radius:50%;background:#2563eb;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#sb-main{flex:1;display:flex;flex-direction:column;min-width:0}
+#sb-msgs{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:16px;scrollbar-width:thin;scrollbar-color:#4b5563 transparent}
+#sb-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;color:#9ca3af}
+#sb-empty i{font-size:2.5rem;color:#3b82f6;background:#3b82f620;padding:20px;border-radius:16px}
+#sb-empty h2{font-size:1.5rem;font-weight:600;color:#f3f4f6;margin:0}
+#sb-wrap{padding:16px 24px;max-width:860px;width:100%;margin:0 auto;box-sizing:border-box}
+#sb-box{background:#2d2d35;border:1px solid #374151;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:8px;transition:border-color .2s}
+#sb-box:focus-within{border-color:#6b7280}
+#sb-ta{background:none;border:none;outline:none;color:#e2e8f0;font-family:inherit;font-size:.9375rem;resize:none;min-height:52px;placeholder-color:#6b7280;width:100%;box-sizing:border-box}
+#sb-ta::placeholder{color:#6b7280}
+#sb-bar{display:flex;justify-content:flex-end}
+#sb-send{width:32px;height:32px;border-radius:50%;background:#374151;border:none;color:#9ca3af;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
+#sb-send:hover{background:#3b82f6;color:#fff}
+#sb-send:disabled{opacity:.4;cursor:not-allowed}
+#sb-note{text-align:center;font-size:.72rem;color:#6b7280;margin-top:8px}
+.sb-msg{display:flex;flex-direction:column;gap:4px}
+.sb-msg.user{align-items:flex-end}
+.sb-msg.bot{align-items:flex-start}
+.sb-lbl{font-size:.65rem;color:#6b7280;padding:0 4px}
+.sb-bubble{max-width:80%;padding:10px 14px;border-radius:12px;line-height:1.6;font-size:.9rem;white-space:pre-wrap;word-break:break-word}
+.sb-msg.user .sb-bubble{background:#1e293b;border:1px solid #334155}
+.sb-msg.bot .sb-bubble{background:#1a1a22;border:1px solid #2d2d3d}
+.sb-sys{text-align:center;font-size:.72rem;color:#6b7280;padding:2px 0}
+</style>
+<div id="sb">
+<aside id="sb-side">
+  <div id="sb-side-head">
+    <div id="sb-logo"><i class="fa-solid fa-ghost"></i>Shadow Byte</div>
+    <button onclick="NoreAPI.exitApp()" style="background:none;border:none;color:#6b7280;cursor:pointer;font-size:.9rem" title="Exit"><i class="fa-solid fa-table-columns"></i></button>
+  </div>
+  <button id="sb-new"><i class="fa-solid fa-plus"></i>New chat</button>
+  <div id="sb-hist">No previous chats</div>
+  <div id="sb-user"><div id="sb-avatar"><i class="fa-solid fa-user" style="font-size:.8rem;color:#fff"></i></div><span>User Account</span></div>
+</aside>
+<main id="sb-main">
+  <div id="sb-msgs">
+    <div id="sb-empty">
+      <i class="fa-solid fa-ghost"></i>
+      <h2>Start chatting with Shadow Byte</h2>
+    </div>
+  </div>
+  <div id="sb-wrap">
+    <div id="sb-box">
+      <textarea id="sb-ta" placeholder="Message Shadow Byte..." rows="2" oninput="this.style.height='';this.style.height=this.scrollHeight+'px'"></textarea>
+      <div id="sb-bar"><button id="sb-send"><i class="fa-solid fa-arrow-up" style="font-size:.75rem"></i></button></div>
+    </div>
+    <div id="sb-note">Shadow Byte can make mistakes. Verify important information.</div>
+  </div>
+</main>
+</div>`;
 
-    const DEFAULT_SYSTEM_PROMPT = `You are ShadowByte, a sharp and capable AI assistant embedded inside Norepinephrine Terminal. Be concise but thorough. You have a slightly edgy, operator-style personality. Address the user as "Operator" occasionally.`;
+const msgs=c.querySelector("#sb-msgs"),ta=c.querySelector("#sb-ta"),btn=c.querySelector("#sb-send"),empty=c.querySelector("#sb-empty");
 
-    // ── Persistent state ──────────────────────────────────────────────
-    let apiKey = NoreAPI.getStorage(API_KEY_STORAGE_KEY) || "";
-    let conversationHistory = JSON.parse(NoreAPI.getStorage(CONVERSATION_HISTORY_KEY) || "[]");
-    let systemPrompt = NoreAPI.getStorage(SYSTEM_PROMPT_KEY) || DEFAULT_SYSTEM_PROMPT;
+function note(t,col="#6b7280"){const e=document.createElement("div");e.className="sb-sys";e.style.color=col;e.textContent=t;msgs.appendChild(e);msgs.scrollTop=msgs.scrollHeight;}
+function msg(role,text,html=false){
+  if(empty)empty.remove();
+  const w=document.createElement("div");w.className="sb-msg "+(role==="user"?"user":"bot");
+  const l=document.createElement("div");l.className="sb-lbl";l.textContent=role==="user"?"OPERATOR":"SHADOWBYTE";
+  const b=document.createElement("div");b.className="sb-bubble";
+  html?b.innerHTML=text:b.textContent=text;
+  w.appendChild(l);w.appendChild(b);msgs.appendChild(w);msgs.scrollTop=msgs.scrollHeight;return b;
+}
 
-    // ── Helpers ───────────────────────────────────────────────────────
-    function saveHistory() {
-        NoreAPI.setStorage(CONVERSATION_HISTORY_KEY, JSON.stringify(conversationHistory));
-    }
+if(hist.length){note("— conversation resumed —","#818cf840");hist.forEach(m=>msg(m.role,m.content));}
+else if(!key){setTimeout(()=>note("No key set. Type /setkey <key>","#fbbf24"),100);}
 
-    function esc(str) {
-        return str
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;");
-    }
+async function slash(raw){
+  const[sub,...rest]=raw.slice(1).trim().split(/\s+/);const r=rest.join(" ");
+  if(sub==="setkey"){if(!r){note("Usage: /setkey <key>","#fbbf24");return;}key=r;NoreAPI.setStorage(K,key);note("Key saved.","#34d399");}
+  else if(sub==="reset"){hist=[];save();msgs.innerHTML="";note("Cleared.");}
+  else if(sub==="sysprompt"){if(!r)note(sysp,"#818cf8");else{sysp=r;NoreAPI.setStorage(SP,sysp);note("System prompt updated.","#34d399");}}
+  else if(sub==="help")msg("bot","/setkey <key>\n/reset\n/sysprompt [text]\n/help\n/exit");
+  else if(sub==="exit")NoreAPI.exitApp();
+  else note(`Unknown: /${sub}. Try /help.`,"#f87171");
+}
 
-    // ── App UI ────────────────────────────────────────────────────────
-    function launchChatApp() {
-        NoreAPI.launchApp((container) => {
-            container.style.cssText =
-                "display:flex;flex-direction:column;height:100dvh;background:#0F1115;font-family:'JetBrains Mono',monospace;box-sizing:border-box;";
+async function send(){
+  const t=ta.value.trim();if(!t)return;ta.value="";ta.style.height="";
+  if(t.startsWith("/")){await slash(t);return;}
+  if(!key){note("No key set. Type /setkey <key>","#f87171");return;}
+  msg("user",t);hist.push({role:"user",content:t});
+  btn.disabled=true;
+  const bub=msg("bot","▋",true);
+  try{
+    const r=await fetch("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},body:JSON.stringify({model:"llama-3.3-70b-versatile",max_tokens:1024,temperature:.7,messages:[{role:"system",content:sysp},...hist]})});
+    if(!r.ok){const d=await r.json().catch(()=>({}));throw new Error(`[${r.status}] ${d.error?.message||r.statusText}`);}
+    const d=await r.json(),reply=d.choices[0].message.content;
+    bub.textContent=reply;hist.push({role:"assistant",content:reply});save();
+  }catch(e){bub.innerHTML=`<span style="color:#f87171">Error: ${esc(e.message)}</span>`;hist.pop();}
+  btn.disabled=false;ta.focus();
+}
 
-            // ── Header ────────────────────────────────────────────────
-            const header = document.createElement("div");
-            header.style.cssText =
-                "display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #1e2330;flex-shrink:0;";
-            header.innerHTML = `
-                <div style="display:flex;align-items:center;gap:10px;">
-                    <span style="color:#818CF8;font-weight:700;font-size:1.1rem;letter-spacing:.05em;">SHADOWBYTE</span>
-                    <span id="sb-status-badge" style="font-size:.65rem;padding:2px 8px;border-radius:9999px;background:#1e2330;color:#64748B;">OFFLINE</span>
-                </div>
-                <button id="sb-close-btn" style="background:none;border:none;color:#64748B;cursor:pointer;font-size:1.2rem;padding:4px 8px;" title="Exit">✕</button>
-            `;
-            container.appendChild(header);
+btn.addEventListener("click",send);
+ta.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
+c.querySelector("#sb-new").addEventListener("click",()=>{hist=[];save();msgs.innerHTML="";});
+setTimeout(()=>ta.focus(),50);
+});}
 
-            // ── Messages area ─────────────────────────────────────────
-            const messages = document.createElement("div");
-            messages.id = "sb-messages";
-            messages.style.cssText =
-                "flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;scrollbar-width:none;";
-            container.appendChild(messages);
-
-            // ── Input bar ─────────────────────────────────────────────
-            const inputBar = document.createElement("div");
-            inputBar.style.cssText =
-                "display:flex;align-items:center;gap:8px;padding:10px 14px;border-top:1px solid #1e2330;flex-shrink:0;";
-            inputBar.innerHTML = `
-                <span style="color:#818CF8;user-select:none;">&gt;</span>
-                <input id="sb-input" type="text" placeholder="Message ShadowByte..." autocomplete="off" spellcheck="false"
-                    style="flex:1;background:none;border:none;outline:none;color:#E2E8F0;font-family:'JetBrains Mono',monospace;font-size:.9rem;caret-color:#818CF8;" />
-                <button id="sb-send-btn" style="background:none;border:1px solid #818CF8;color:#818CF8;cursor:pointer;padding:4px 12px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.8rem;">SEND</button>
-            `;
-            container.appendChild(inputBar);
-
-            // ── DOM refs ──────────────────────────────────────────────
-            const statusBadge = container.querySelector("#sb-status-badge");
-            const input = container.querySelector("#sb-input");
-            const sendBtn = container.querySelector("#sb-send-btn");
-            const closeBtn = container.querySelector("#sb-close-btn");
-
-            // ── Badge helper ──────────────────────────────────────────
-            function setStatus(state) {
-                const map = {
-                    online:   { text: "ONLINE",   bg: "#052e16", color: "#34D399" },
-                    offline:  { text: "OFFLINE",  bg: "#1e2330", color: "#64748B" },
-                    thinking: { text: "THINKING", bg: "#1e1a05", color: "#fbbf24" },
-                    error:    { text: "ERROR",    bg: "#2d0a0a", color: "#f87171" },
-                };
-                const s = map[state] || map.offline;
-                statusBadge.textContent = s.text;
-                statusBadge.style.background = s.bg;
-                statusBadge.style.color = s.color;
-            }
-
-            // ── Render helpers ────────────────────────────────────────
-            function addMessage(role, text, isHTML = false) {
-                const wrap = document.createElement("div");
-                wrap.style.cssText = `display:flex;flex-direction:column;gap:4px;align-items:${role === "user" ? "flex-end" : "flex-start"};`;
-
-                const label = document.createElement("span");
-                label.style.cssText = `font-size:.65rem;color:#64748B;margin-${role === "user" ? "right" : "left"}:4px;`;
-                label.textContent = role === "user" ? "OPERATOR" : "SHADOWBYTE";
-
-                const bubble = document.createElement("div");
-                bubble.style.cssText = `
-                    max-width:85%;padding:10px 14px;border-radius:8px;line-height:1.6;font-size:.88rem;white-space:pre-wrap;word-break:break-word;
-                    ${role === "user"
-                        ? "background:#1a1d2e;color:#E2E8F0;border:1px solid #2a2d40;"
-                        : "background:#0d1117;color:#E2E8F0;border:1px solid #818CF820;"}
-                `;
-                if (isHTML) bubble.innerHTML = text; else bubble.textContent = text;
-
-                wrap.appendChild(label);
-                wrap.appendChild(bubble);
-                messages.appendChild(wrap);
-                messages.scrollTop = messages.scrollHeight;
-                return bubble;
-            }
-
-            function addSystemNote(text, color = "#64748B") {
-                const el = document.createElement("div");
-                el.style.cssText = `text-align:center;font-size:.72rem;color:${color};padding:4px 0;`;
-                el.textContent = text;
-                messages.appendChild(el);
-                messages.scrollTop = messages.scrollHeight;
-            }
-
-            // ── Restore history ───────────────────────────────────────
-            if (conversationHistory.length) {
-                addSystemNote("— conversation resumed —", "#818CF840");
-                conversationHistory.forEach(m => addMessage(m.role === "user" ? "user" : "assistant", m.content));
-                setStatus("online");
-            } else {
-                if (!apiKey) {
-                    addSystemNote("No API key set. Type: /setkey sk-ant-...", "#fbbf24");
-                } else {
-                    addSystemNote("ShadowByte ready. Start typing.", "#34D399");
-                    setStatus("online");
-                }
-            }
-
-            // ── Slash command handler ─────────────────────────────────
-            async function handleSlashCommand(raw) {
-                const parts = raw.slice(1).trim().split(/\s+/);
-                const sub = parts[0].toLowerCase();
-                const rest = parts.slice(1).join(" ");
-
-                switch (sub) {
-                    case "setkey":
-                        if (!rest) { addSystemNote("Usage: /setkey <YOUR_API_KEY>", "#fbbf24"); return; }
-                        apiKey = rest;
-                        NoreAPI.setStorage(API_KEY_STORAGE_KEY, apiKey);
-                        addSystemNote("API key saved.", "#34D399");
-                        setStatus("online");
-                        break;
-                    case "reset":
-                        conversationHistory = [];
-                        saveHistory();
-                        messages.innerHTML = "";
-                        addSystemNote("Conversation cleared.", "#64748B");
-                        break;
-                    case "sysprompt":
-                        if (!rest) {
-                            addSystemNote(`Current system prompt: ${systemPrompt}`, "#818CF8");
-                        } else {
-                            systemPrompt = rest;
-                            NoreAPI.setStorage(SYSTEM_PROMPT_KEY, systemPrompt);
-                            addSystemNote("System prompt updated.", "#34D399");
-                        }
-                        break;
-                    case "help":
-                        addMessage("assistant",
-                            `/setkey <key>      — Set your Anthropic API key\n` +
-                            `/reset             — Clear conversation history\n` +
-                            `/sysprompt [text]  — View or set the system prompt\n` +
-                            `/help              — Show this menu\n` +
-                            `/exit              — Close ShadowByte`
-                        );
-                        break;
-                    case "exit":
-                        NoreAPI.exitApp();
-                        break;
-                    default:
-                        addSystemNote(`Unknown command: /${sub}. Type /help.`, "#f87171");
-                }
-            }
-
-            // ── Send message ──────────────────────────────────────────
-            async function sendMessage() {
-                const text = input.value.trim();
-                if (!text) return;
-                input.value = "";
-
-                if (text.startsWith("/")) {
-                    await handleSlashCommand(text);
-                    return;
-                }
-
-                if (!apiKey) {
-                    addSystemNote("No API key set. Type: /setkey sk-ant-...", "#f87171");
-                    return;
-                }
-
-                addMessage("user", text);
-                conversationHistory.push({ role: "user", content: text });
-
-                setStatus("thinking");
-                input.disabled = true;
-                sendBtn.disabled = true;
-
-                // Streaming thinking bubble
-                const thinkingBubble = addMessage("assistant", "▋", true);
-
-                try {
-                    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${apiKey}`,
-                        },
-                        body: JSON.stringify({
-                            model: "llama-3.3-70b-versatile",
-                            max_tokens: 1024,
-                            temperature: 0.7,
-                            messages: [
-                                { role: "system", content: systemPrompt },
-                                ...conversationHistory,
-                            ],
-                        }),
-                    });
-
-                    if (!response.ok) {
-                        const errData = await response.json().catch(() => ({}));
-                        const errMsg = errData.error?.message || response.statusText;
-                        throw new Error(`[${response.status}] ${errMsg}`);
-                    }
-
-                    const data = await response.json();
-                    const reply = data.choices[0].message.content;
-
-                    thinkingBubble.textContent = reply;
-                    conversationHistory.push({ role: "assistant", content: reply });
-                    saveHistory();
-                    setStatus("online");
-
-                } catch (e) {
-                    thinkingBubble.innerHTML = `<span style="color:#f87171">Error: ${esc(e.message)}</span>`;
-                    conversationHistory.pop(); // remove failed user message
-                    setStatus("error");
-                    setTimeout(() => setStatus(apiKey ? "online" : "offline"), 3000);
-                }
-
-                input.disabled = false;
-                sendBtn.disabled = false;
-                input.focus();
-            }
-
-            // ── Event listeners ───────────────────────────────────────
-            sendBtn.addEventListener("click", sendMessage);
-            input.addEventListener("keydown", (e) => {
-                if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-            });
-            closeBtn.addEventListener("click", () => NoreAPI.exitApp());
-
-            // Focus input on open
-            setTimeout(() => input.focus(), 50);
-        });
-    }
-
-    // ── Terminal command handler ───────────────────────────────────────
-    async function handleCommand(args) {
-        const sub = (args.trim().split(" ")[0] || "").toLowerCase();
-
-        if (sub === "setkey") {
-            const key = args.trim().slice(7).trim();
-            if (!key) {
-                NoreAPI.print('<span class="warning-text">Usage: shadowbyte setkey &lt;YOUR_API_KEY&gt;</span>', true);
-                return;
-            }
-            apiKey = key;
-            NoreAPI.setStorage(API_KEY_STORAGE_KEY, apiKey);
-            NoreAPI.print('<span class="cmd">API key saved. Run "shadowbyte" to open the chat.</span>', true);
-            return;
-        }
-
-        if (sub === "reset") {
-            conversationHistory = [];
-            saveHistory();
-            NoreAPI.print('<span class="dim">Conversation history cleared.</span>', true);
-            return;
-        }
-
-        if (sub === "help") {
-            NoreAPI.print("<hr>", true);
-            NoreAPI.print("--- ShadowByte (Groq Edition) ---", true);
-            NoreAPI.print('<span class="cmd">shadowbyte</span>: Open the ShadowByte chat app.', true);
-            NoreAPI.print('<span class="cmd">shadowbyte setkey &lt;key&gt;</span>: Set your Anthropic API key.', true);
-            NoreAPI.print('<span class="cmd">shadowbyte reset</span>: Clear conversation history.', true);
-            NoreAPI.print('<span class="dim">Inside the app: /setkey /reset /sysprompt /help /exit</span>', true);
-            NoreAPI.print("<hr>", true);
-            return;
-        }
-
-        // Default: open the app
-        launchChatApp();
-    }
-
-    window.registerCommand(
-        PLUGIN_NAME,
-        "Open the ShadowByte AI chat app (Powered by Groq).",
-        handleCommand
-    );
+async function cmd(args){
+  const[sub,...rest]=args.trim().split(/\s+/);
+  if(sub==="setkey"){const k=rest.join(" ");if(!k){NoreAPI.print('<span class="warning-text">Usage: shadowbyte setkey &lt;key&gt;</span>',true);return;}key=k;NoreAPI.setStorage(K,key);NoreAPI.print('<span class="cmd">Key saved.</span>',true);}
+  else if(sub==="reset"){hist=[];save();NoreAPI.print('<span class="dim">History cleared.</span>',true);}
+  else if(sub==="help"){NoreAPI.print("<hr>",true);NoreAPI.print("shadowbyte — open chat<br>shadowbyte setkey &lt;key&gt;<br>shadowbyte reset<br>In-app: /setkey /reset /sysprompt /help /exit",true);NoreAPI.print("<hr>",true);}
+  else launch();
+}
+window.registerCommand("shadowbyte","Open ShadowByte AI chat (Groq).",cmd);
 })();
