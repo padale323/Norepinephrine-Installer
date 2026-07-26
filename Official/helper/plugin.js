@@ -14,7 +14,6 @@
     // Load conversation history
     let conversationHistory = JSON.parse(NoreAPI.getStorage(CONVERSATION_HISTORY_KEY) || "[]");
 
-    // Load Google Generative AI library
     // Load Google Generative AI library via ESM
     async function loadGeminiLibrary() {
         if (GenAI) return true; // Already loaded
