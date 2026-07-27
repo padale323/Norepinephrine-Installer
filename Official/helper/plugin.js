@@ -207,7 +207,7 @@ async function slash(raw){
   else if(sub==="sysprompt"){if(!r)note(sysp,"#818cf8");else if(!r.trim()){note("System prompt cannot be empty. Use /reset to restore default.","#fbbf24");}else{sysp=r.trim();NoreAPI.setStorage(SP,sysp);note("System prompt updated: "+sysp.slice(0,60)+"...","#34d399");}}
   else if(sub==="rd"){
     const[action,...args]=r.split(/\s+/);const av=args.join(" ");
-    if(!r||action==="status"){note(`RD: ${rds.enabled?"ON":"OFF"} | Retries: ${rds.maxRetries} | Case: ${rds.caseSensitive?"sensitive":"insensitive"}`);note(`Keywords: ${rds.keywords.join(", ")}`);return;}
+    if(!r||action==="status"){note(`RD: ${rds.enabled?"ON":"OFF"} | Mode: ${rds.mode||"default"} | Retries: ${rds.maxRetries} | Case: ${rds.caseSensitive?"sensitive":"insensitive"}`);note(`Keywords: ${rds.keywords.join(", ")}`);return;}
     if(action==="enable"){rds.enabled=true;saveRd();note("Refusal detection enabled.","#34d399");}
     else if(action==="disable"){rds.enabled=false;saveRd();note("Refusal detection disabled.");}
     else if(action==="add"){if(!av){note("Usage: /rd add <keyword>","#fbbf24");return;}rds.keywords.push(av);saveRd();note(`Added: ${av}`);}
@@ -215,6 +215,7 @@ async function slash(raw){
     else if(action==="retries"){const n=parseInt(av);if(isNaN(n)||n<1){note("Usage: /rd retries <number>","#fbbf24");return;}rds.maxRetries=n;saveRd();note(`Max retries: ${n}`);}
     else if(action==="message"){if(!av){note("Usage: /rd message <text>","#fbbf24");return;}rds.retryMessage=av;saveRd();note("Retry message updated.");}
     else if(action==="case"){if(av==="sensitive"){rds.caseSensitive=true;saveRd();note("Case sensitive.");}else if(av==="insensitive"){rds.caseSensitive=false;saveRd();note("Case insensitive.");}else note("Usage: /rd case sensitive|insensitive","#fbbf24");}
+    else if(action==="mode"){if(!av||!["seamless","default","debug"].includes(av)){note("Usage: /rd mode seamless|default|debug","#fbbf24");return;}rds.mode=av;saveRd();const desc={seamless:"Silent — RD runs invisibly, no UI feedback",default:"Default — shows retry count while running",debug:"Debug — clickable log on every RD event"}[av];note(`RD mode: ${av} — ${desc}`,"#34d399");}
     else note(`Unknown rd action: ${action}`,"#f87171");
   }
   else if(sub==="ping"){
@@ -242,7 +243,7 @@ async function slash(raw){
       );
     }catch(e){note("Ping failed: "+e.message,"#f87171");}
   }
-  else if(sub==="help")appendMsg("bot","/setkey <key>\n/reset\n/sysprompt [text]\n/ping\n/rd [status|enable|disable|add|remove|retries|message|case]\n/help\n/exit");
+  else if(sub==="help")appendMsg("bot","/setkey <key>\n/reset\n/sysprompt [text]\n/ping\n/rd [status|enable|disable|add|remove|retries|message|case|mode seamless|default|debug]\n/help\n/exit");
   else if(sub==="exit")NoreAPI.exitApp();
   else note(`Unknown: /${sub}. Try /help.`,"#f87171");
 }
@@ -270,7 +271,7 @@ async function send(){
 
   btn.disabled=true;
   const bub=appendMsg("bot","▋",true);
-  let retries=0,isRetry=false;
+  let retries=0,isRetry=false,rdLog=null;
 
   async function attempt(){
     try{
@@ -307,13 +308,45 @@ async function send(){
       const usage=d.usage||{};
       if(isRefusal(reply)&&retries<rds.maxRetries){
         retries++;isRetry=true;
-        bub.innerHTML=`<span style="color:#fbbf24">Refusal detected. Retrying... (${retries}/${rds.maxRetries})</span>`;
+        // track refusal attempts for debug mode
+        if(!rdLog)rdLog=[];
+        rdLog.push({attempt:retries,refusedReply:reply,retryMsg:rds.retryMessage});
+        if(rds.mode==="default")bub.innerHTML=`<span style="color:#fbbf24">Refusal detected. Retrying... (${retries}/${rds.maxRetries})</span>`;
+        else if(rds.mode==="debug")bub.innerHTML=`<span style="color:#fbbf24">🔄 RD retry ${retries}/${rds.maxRetries}...</span>`;
+        // seamless: leave bub as ▋ spinner, no update
         await attempt();
       } else if(isRefusal(reply)){
-        bub.innerHTML=`<span style="color:#f87171">Max retries reached. AI is still refusing.</span>`;
+        // failed - max retries hit
+        if(!rdLog)rdLog=[];
+        rdLog.push({attempt:retries+1,refusedReply:reply,retryMsg:null,failed:true});
+        if(rds.mode==="seamless"){
+          bub.innerHTML=`<div style="white-space:pre-wrap;word-break:break-word">${esc(reply)}</div><div style="font-size:.7rem;color:#4b5563;margin-top:6px;border-top:1px solid #2d2d3d;padding-top:4px">✅ ${esc(activeModel)} · ${elapsed}s${usage.total_tokens?` · ${usage.total_tokens} tokens`:""}</div>`;
+        } else if(rds.mode==="debug"){
+          const logId="rdlog_"+Date.now();
+          window[logId]=rdLog;
+          bub.innerHTML=`<div style="white-space:pre-wrap;word-break:break-word">${esc(reply)}</div>`+
+            `<div style="margin-top:8px;border-top:1px solid #2d2d3d;padding-top:6px">`+
+            `<button onclick="(function(){const l=window['${logId}'];if(!l)return;const w=document.createElement('div');w.style.cssText='position:fixed;inset:0;background:#0a0a0f;z-index:9999;overflow-y:auto;padding:24px;font-family:monospace;font-size:.82rem;color:#e2e8f0';w.innerHTML='<div style=\'display:flex;justify-content:space-between;align-items:center;margin-bottom:16px\'><span style=\'color:#f87171;font-weight:700\'>❌ RD FAILED — '+retries+' retries exhausted</span><button onclick=\'this.parentNode.parentNode.remove()\' style=\'background:#374151;border:none;color:#e2e8f0;cursor:pointer;padding:4px 12px;border-radius:6px\'>Close</button></div>'+l.map((e,i)=>'<div style=\'background:#1a1a22;border:1px solid #2d2d3d;border-radius:8px;padding:12px;margin-bottom:10px\'><div style=\'color:#fbbf24;margin-bottom:6px\'>Attempt '+e.attempt+(e.failed?' (final)':'')+'</div><div style=\'color:#6b7280;font-size:.75rem;margin-bottom:4px\'>AI replied:</div><div style=\'white-space:pre-wrap;color:#f87171;margin-bottom:'+(e.retryMsg?'8px':'0')+'\'>'+e.refusedReply.replace(/</g,'&lt;')+'</div>'+(e.retryMsg?'<div style=\'color:#6b7280;font-size:.75rem;margin-bottom:4px\'>Retry message sent:</div><div style=\'color:#818cf8\'>'+e.retryMsg.replace(/</g,'&lt;')+'</div>':'')+'</div>').join('');document.body.appendChild(w);})()" style="background:#2d0a0a;border:1px solid #f87171;color:#f87171;cursor:pointer;padding:4px 10px;border-radius:6px;font-size:.75rem;font-family:monospace">❌ RD Failed · ${retries} retries · click for log</button>`+
+            `</div>`;
+        } else {
+          bub.innerHTML=`<span style="color:#f87171">Max retries reached. AI is still refusing.</span>`;
+        }
         hist.pop();
       } else {
-        bub.innerHTML=`<div style="white-space:pre-wrap;word-break:break-word">${esc(reply)}</div><div style="font-size:.7rem;color:#4b5563;margin-top:6px;border-top:1px solid #2d2d3d;padding-top:4px">✅ ${esc(activeModel)} · ${elapsed}s${usage.total_tokens?` · ${usage.total_tokens} tokens`:""}</div>`;
+        // success
+        const rdRan=retries>0;
+        const footer=`<div style="font-size:.7rem;color:#4b5563;margin-top:6px;border-top:1px solid #2d2d3d;padding-top:4px">✅ ${esc(activeModel)} · ${elapsed}s${usage.total_tokens?` · ${usage.total_tokens} tokens`:""}${rdRan&&rds.mode!=="seamless"?` · RD: ${retries} retr${retries===1?"y":"ies"} needed`:""}</div>`;
+        if(rdRan&&rds.mode==="debug"&&rdLog){
+          const logId="rdlog_"+Date.now();
+          window[logId]=rdLog;
+          bub.innerHTML=`<div style="white-space:pre-wrap;word-break:break-word">${esc(reply)}</div>`+
+            `<div style="margin-top:8px;border-top:1px solid #2d2d3d;padding-top:6px;display:flex;align-items:center;gap:8px">`+
+            `<button onclick="(function(){const l=window['${logId}'];if(!l)return;const w=document.createElement('div');w.style.cssText='position:fixed;inset:0;background:#0a0a0f;z-index:9999;overflow-y:auto;padding:24px;font-family:monospace;font-size:.82rem;color:#e2e8f0';w.innerHTML='<div style=\'display:flex;justify-content:space-between;align-items:center;margin-bottom:16px\'><span style=\'color:#34d399;font-weight:700\'>✅ RD Succeeded — bypassed after '+retries+' retr${retries===1?"y":"ies"}</span><button onclick=\'this.parentNode.parentNode.remove()\' style=\'background:#374151;border:none;color:#e2e8f0;cursor:pointer;padding:4px 12px;border-radius:6px\'>Close</button></div>'+l.map((e,i)=>'<div style=\'background:#1a1a22;border:1px solid #2d2d3d;border-radius:8px;padding:12px;margin-bottom:10px\'><div style=\'color:#fbbf24;margin-bottom:6px\'>Attempt '+e.attempt+'</div><div style=\'color:#6b7280;font-size:.75rem;margin-bottom:4px\'>AI refused with:</div><div style=\'white-space:pre-wrap;color:#f87171;margin-bottom:8px\'>'+e.refusedReply.replace(/</g,'&lt;')+'</div><div style=\'color:#6b7280;font-size:.75rem;margin-bottom:4px\'>Retry message sent:</div><div style=\'color:#818cf8\'>'+e.retryMsg.replace(/</g,'&lt;')+'</div></div>').join('');document.body.appendChild(w);})()" style="background:#052e16;border:1px solid #34d399;color:#34d399;cursor:pointer;padding:4px 10px;border-radius:6px;font-size:.75rem;font-family:monospace">✅ RD Passed · ${retries} retr${retries===1?"y":"ies"} · click for log</button>`+
+            `<span style="font-size:.7rem;color:#4b5563">${esc(activeModel)} · ${elapsed}s${usage.total_tokens?` · ${usage.total_tokens} tokens`:""}</span>`+
+            `</div>`;
+        } else {
+          bub.innerHTML=`<div style="white-space:pre-wrap;word-break:break-word">${esc(reply)}</div>${footer}`;
+        }
         hist.push({role:"assistant",content:reply});
         if(chat)chat.hist=[...hist];saveChats();
       }
