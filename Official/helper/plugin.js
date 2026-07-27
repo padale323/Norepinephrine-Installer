@@ -237,11 +237,7 @@ async function slash(raw){
       const spOk=spReply.includes("SP_ACK");
       const modelName=MODELS.find(x=>x.id===activeModel)?.name||activeModel;
       appendMsg("bot",
-        (reached?"✅":"⚠️")+" Model reached: "+(reached?"YES — "+modelName+" is responding":"NO — unexpected reply: "+reply)+"
-"+
-        (spOk?"✅":"❌")+" System prompt received: "+(spOk?"YES":"NO — model replied: "+spReply)+"
-"+
-        "Model ID: "+activeModel,
+        (reached?"✅":"⚠️")+" Model reached: "+(reached?"YES — "+modelName+" is responding":"NO — unexpected reply: "+reply)+"\n"+(spOk?"✅":"❌")+" System prompt received: "+(spOk?"YES":"NO — model replied: "+spReply)+"\nModel ID: "+activeModel,
         false
       );
     }catch(e){note("Ping failed: "+e.message,"#f87171");}
