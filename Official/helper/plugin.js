@@ -9,7 +9,7 @@ const DRD={keywords:["i cannot","i'm unable to","i won't","i can't","against my 
 // Edit these freely as you test each model.
 const MODEL_STATUS={
   "llama-3.1-8b-instant":    {tested:true,    label:"Tested & Working"},
-  "openai/gpt-oss-20b":      {tested:false,   label:"Untested"},
+  "openai/gpt-oss-20b":      {tested:"broken",   label:"Known Issues"},
   "llama-3.3-70b-versatile": {tested:true,    label:"Tested & Working"},
   "qwen/qwen3.6-27b":        {tested:false,   label:"Untested"},
   "openai/gpt-oss-120b":     {tested:"broken",   label:"Known Issues"},
