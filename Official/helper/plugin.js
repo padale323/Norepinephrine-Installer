@@ -151,68 +151,72 @@ c.innerHTML=`<style>
 #sb{display:flex;height:100dvh;background:#17171c;font-family:Inter,sans-serif;color:#e2e8f0;overflow:hidden}
 /* sidebar */
 #sb-side{width:260px;background:#1e1e24;border-right:1px solid #2d2d35;display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
-#sb-head{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2d2d35;flex-shrink:0}
-#sb-logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:1rem;color:#e2e8f0;letter-spacing:.02em}
-#sb-logo i{color:#3b82f6;font-size:1.1rem}
-.sb-icon-btn{background:none;border:none;color:#6b7280;cursor:pointer;padding:5px;border-radius:6px;font-size:.85rem;transition:color .15s,background .15s;display:flex;align-items:center;justify-content:center}
+#sb-head{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2d2d35;flex-shrink:0;gap:8px}
+#sb-logo{display:flex;align-items:center;gap:7px;font-weight:700;font-size:.95rem;color:#e2e8f0;letter-spacing:.02em;min-width:0}
+#sb-logo i{color:#3b82f6;font-size:1rem;flex-shrink:0}
+.sb-icon-btn{background:none;border:none;color:#6b7280;cursor:pointer;padding:6px;border-radius:6px;font-size:.8rem;transition:color .15s,background .15s;display:flex;align-items:center;justify-content:center;line-height:1}
 .sb-icon-btn:hover{color:#e2e8f0;background:#2d2d35}
-#sb-btn-row{display:flex;gap:6px;padding:10px 12px;flex-shrink:0}
-#sb-new{flex:1;background:#2d2d35;border:1px solid #374151;color:#e2e8f0;padding:8px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-size:.8rem;font-family:inherit;transition:background .15s}
-#sb-new:hover{background:#374151}
-#sb-clear{background:#2d2d35;border:1px solid #374151;color:#6b7280;padding:8px 10px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:.85rem;transition:background .15s,color .15s}
+#sb-head-actions{display:flex;gap:2px;flex-shrink:0}
+/* settings button — more prominent */
+#sb-settings-btn{color:#9ca3af;background:#2d2d35;border:1px solid #374151;border-radius:7px;padding:6px 8px;font-size:.8rem}
+#sb-settings-btn:hover{color:#e2e8f0;background:#374151;border-color:#4b5563}
+#sb-btn-row{display:flex;gap:6px;padding:8px 10px;flex-shrink:0}
+#sb-new{flex:1;background:#2d2d35;border:1px solid #374151;color:#d1d5db;padding:7px;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-size:.78rem;font-family:inherit;transition:background .15s,border-color .15s}
+#sb-new:hover{background:#374151;border-color:#4b5563;color:#e2e8f0}
+#sb-clear{background:#2d2d35;border:1px solid #374151;color:#6b7280;padding:7px 10px;border-radius:9px;cursor:pointer;font-family:inherit;font-size:.8rem;transition:background .15s,color .15s,border-color .15s}
 #sb-clear:hover{background:#2d0a0a;color:#f87171;border-color:#f8717140}
 #sb-chats{flex:1;overflow-y:auto;padding:4px 8px;scrollbar-width:none;min-height:0}
 #sb-chats::-webkit-scrollbar{display:none}
-.sb-chat-item{padding:7px 10px;border-radius:8px;cursor:pointer;font-size:.78rem;color:#9ca3af;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;justify-content:space-between;gap:4px;transition:background .1s,color .1s}
-.sb-chat-item:hover{background:#2d2d35;color:#e2e8f0}
-.sb-chat-item.active{background:#2d2d35;color:#e2e8f0;font-weight:500}
-.sb-chat-del{opacity:0;background:none;border:none;color:#6b7280;cursor:pointer;padding:2px 5px;font-size:.7rem;flex-shrink:0;transition:color .1s}
+.sb-chat-item{padding:6px 8px;border-radius:7px;cursor:pointer;font-size:.77rem;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;justify-content:space-between;gap:4px;transition:background .1s,color .1s}
+.sb-chat-item:hover{background:#252530;color:#d1d5db}
+.sb-chat-item.active{background:#252530;color:#e2e8f0;font-weight:500}
+.sb-chat-del{opacity:0;background:none;border:none;color:#4b5563;cursor:pointer;padding:2px 5px;font-size:.68rem;flex-shrink:0;transition:color .1s}
 .sb-chat-item:hover .sb-chat-del{opacity:1}
 .sb-chat-del:hover{color:#f87171}
-#sb-no-chats{padding:20px 12px;color:#4b5563;font-size:.78rem;text-align:center}
+#sb-no-chats{padding:20px 12px;color:#374151;font-size:.77rem;text-align:center}
 /* sidebar sections */
-.sb-sec{padding:8px 12px;border-top:1px solid #2d2d35;flex-shrink:0}
-.sb-sec-label{font-size:.65rem;color:#6b7280;margin-bottom:5px;text-transform:uppercase;letter-spacing:.08em;font-weight:600}
-.sb-sel{width:100%;background:#2d2d35;border:1px solid #374151;color:#e2e8f0;padding:7px 10px;border-radius:8px;font-size:.8rem;font-family:inherit;cursor:pointer;outline:none;transition:border-color .15s}
-.sb-sel:focus,.sb-sel:hover{border-color:#4b5563}
-#sb-model-info{margin-top:7px;background:#17171c;border:1px solid #2d2d35;border-radius:8px;padding:9px;font-size:.7rem;color:#9ca3af;line-height:1.9}
-.mi-bar{font-family:monospace;color:#3b82f6;font-size:.68rem}
+.sb-sec{padding:8px 10px;border-top:1px solid #252530;flex-shrink:0}
+.sb-sec-label{font-size:.62rem;color:#4b5563;margin-bottom:5px;text-transform:uppercase;letter-spacing:.1em;font-weight:700}
+.sb-sel{width:100%;background:#252530;border:1px solid #374151;color:#d1d5db;padding:6px 9px;border-radius:7px;font-size:.78rem;font-family:inherit;cursor:pointer;outline:none;transition:border-color .15s,background .15s}
+.sb-sel:focus,.sb-sel:hover{border-color:#4b5563;background:#2d2d35}
+#sb-model-info{margin-top:6px;background:#17171c;border:1px solid #252530;border-radius:7px;padding:8px;font-size:.69rem;color:#6b7280;line-height:1.85}
+.mi-bar{font-family:monospace;color:#3b82f6;font-size:.66rem}
 /* main */
-#sb-main{flex:1;display:flex;flex-direction:column;min-width:0}
-#sb-msgs{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:14px;scrollbar-width:thin;scrollbar-color:#2d2d35 transparent}
-#sb-msgs::-webkit-scrollbar{width:4px}
-#sb-msgs::-webkit-scrollbar-thumb{background:#2d2d35;border-radius:4px}
-#sb-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;color:#9ca3af;user-select:none}
-#sb-empty i{font-size:2rem;color:#3b82f6;background:#3b82f618;padding:18px;border-radius:14px}
-#sb-empty h2{font-size:1.25rem;font-weight:600;color:#d1d5db}
-#sb-empty p{font-size:.78rem;color:#4b5563}
+#sb-main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
+#sb-msgs{flex:1;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:16px;scrollbar-width:thin;scrollbar-color:#252530 transparent}
+#sb-msgs::-webkit-scrollbar{width:3px}
+#sb-msgs::-webkit-scrollbar-thumb{background:#252530;border-radius:4px}
+#sb-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:#9ca3af;user-select:none}
+#sb-empty i{font-size:1.8rem;color:#3b82f6;background:#3b82f614;padding:16px;border-radius:16px;border:1px solid #3b82f620}
+#sb-empty h2{font-size:1.15rem;font-weight:600;color:#9ca3af}
+#sb-empty p{font-size:.76rem;color:#374151}
 /* input */
-#sb-wrap{padding:12px 20px 16px;max-width:820px;width:100%;margin:0 auto;flex-shrink:0}
-#sb-box{background:#2d2d35;border:1px solid #374151;border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;transition:border-color .2s}
-#sb-box:focus-within{border-color:#4b5563}
-#sb-ta{background:none;border:none;outline:none;color:#e2e8f0;font-family:inherit;font-size:.9rem;resize:none;min-height:44px;max-height:200px;width:100%;line-height:1.5}
-#sb-ta::placeholder{color:#4b5563}
+#sb-wrap{padding:10px 20px 18px;max-width:800px;width:100%;margin:0 auto;flex-shrink:0}
+#sb-box{background:#1e1e24;border:1px solid #2d2d35;border-radius:12px;padding:11px 13px;display:flex;flex-direction:column;gap:8px;transition:border-color .2s,box-shadow .2s}
+#sb-box:focus-within{border-color:#374151;box-shadow:0 0 0 3px #3b82f608}
+#sb-ta{background:none;border:none;outline:none;color:#e2e8f0;font-family:inherit;font-size:.88rem;resize:none;min-height:42px;max-height:200px;width:100%;line-height:1.55}
+#sb-ta::placeholder{color:#374151}
 #sb-bar{display:flex;align-items:center;justify-content:space-between;gap:8px}
 #sb-bar-left{display:flex;align-items:center;gap:6px;min-width:0;overflow:hidden}
-#sb-cur{font-size:.68rem;color:#4b5563;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#sb-send{width:30px;height:30px;border-radius:50%;background:#374151;border:none;color:#9ca3af;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;flex-shrink:0}
-#sb-send:hover{background:#3b82f6;color:#fff}
-#sb-send:disabled{opacity:.35;cursor:not-allowed}
-#sb-note{text-align:center;font-size:.67rem;color:#374151;margin-top:6px}
+#sb-cur{font-size:.66rem;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sb-send{width:28px;height:28px;border-radius:50%;background:#3b82f6;border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .1s;flex-shrink:0}
+#sb-send:hover{background:#2563eb;transform:scale(1.05)}
+#sb-send:disabled{opacity:.3;cursor:not-allowed;transform:none;background:#374151}
+#sb-note{text-align:center;font-size:.64rem;color:#2d2d35;margin-top:5px}
 /* messages */
 .sb-msg{display:flex;flex-direction:column;gap:3px;max-width:100%}
 .sb-msg.user{align-items:flex-end}
 .sb-msg.bot{align-items:flex-start}
-.sb-lbl{font-size:.6rem;color:#4b5563;padding:0 4px;letter-spacing:.05em;font-weight:600}
-.sb-bubble{max-width:82%;padding:9px 13px;border-radius:12px;line-height:1.65;font-size:.88rem;word-break:break-word}
-.sb-msg.user .sb-bubble{background:#1e293b;border:1px solid #334155;white-space:pre-wrap}
-.sb-msg.bot .sb-bubble{background:#1a1a22;border:1px solid #2d2d3d}
-.sb-sys{text-align:center;font-size:.68rem;color:#374151;padding:1px 0}
-/* settings overlay */
-#sb-settings{display:none;position:absolute;inset:0;background:#17171c;z-index:100;flex-direction:column;overflow:hidden}
+.sb-lbl{font-size:.58rem;color:#374151;padding:0 4px;letter-spacing:.06em;font-weight:700;text-transform:uppercase}
+.sb-bubble{max-width:80%;padding:9px 12px;border-radius:11px;line-height:1.65;font-size:.87rem;word-break:break-word}
+.sb-msg.user .sb-bubble{background:#1c2a3d;border:1px solid #1e3a5f;white-space:pre-wrap;color:#cbd5e1}
+.sb-msg.bot .sb-bubble{background:#18181f;border:1px solid #252530;color:#d1d5db}
+.sb-sys{text-align:center;font-size:.65rem;color:#2d2d35;padding:1px 0}
+/* settings overlay — covers full app */
+#sb-settings{display:none;position:fixed;inset:0;background:#13131a;z-index:1000;flex-direction:column;overflow:hidden}
 #sb-settings.open{display:flex}
-#sb-set-head{padding:14px 20px;border-bottom:1px solid #2d2d35;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-#sb-set-head h2{font-size:1rem;font-weight:600;color:#e2e8f0}
+#sb-set-head{padding:14px 20px;border-bottom:1px solid #2d2d35;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#17171c}
+#sb-set-head h2{font-size:.95rem;font-weight:600;color:#e2e8f0}
 #sb-set-body{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:24px;max-width:640px;width:100%;margin:0 auto}
 .set-group{display:flex;flex-direction:column;gap:10px}
 .set-group-title{font-size:.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;font-weight:600;padding-bottom:4px;border-bottom:1px solid #2d2d35}
@@ -246,8 +250,8 @@ c.innerHTML=`<style>
 <aside id="sb-side">
   <div id="sb-head">
     <div id="sb-logo"><i class="fa-solid fa-ghost"></i>Shadow Byte</div>
-    <div style="display:flex;gap:4px">
-      <button class="sb-icon-btn" id="sb-settings-btn" title="Settings"><i class="fa-solid fa-gear"></i></button>
+    <div id="sb-head-actions">
+      <button class="sb-icon-btn" id="sb-settings-btn" title="Settings"><i class="fa-solid fa-gear"></i> Settings</button>
       <button class="sb-icon-btn" onclick="NoreAPI.exitApp()" title="Exit"><i class="fa-solid fa-xmark"></i></button>
     </div>
   </div>
@@ -266,7 +270,7 @@ c.innerHTML=`<style>
     <div id="sb-model-info"></div>
   </div>
 </aside>
-<main id="sb-main" style="position:relative">
+<main id="sb-main">
   <div id="sb-msgs"><div id="sb-empty"><i class="fa-solid fa-ghost"></i><h2>Start chatting</h2><p>Pick a byte and model, then send a message.</p></div></div>
   <div id="sb-wrap">
     <div id="sb-box">
@@ -278,15 +282,15 @@ c.innerHTML=`<style>
     </div>
     <div id="sb-note">Shadow Byte can make mistakes. Verify important information.</div>
   </div>
-  <!-- settings overlay -->
-  <div id="sb-settings">
-    <div id="sb-set-head">
-      <h2><i class="fa-solid fa-gear" style="color:#3b82f6;margin-right:8px"></i>Settings</h2>
-      <button class="sb-icon-btn" id="sb-settings-close"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div id="sb-set-body"></div>
-  </div>
 </main>
+</div>
+<!-- settings overlay — outside #sb so it covers everything via position:fixed -->
+<div id="sb-settings">
+  <div id="sb-set-head">
+    <h2><i class="fa-solid fa-gear" style="color:#3b82f6;margin-right:8px"></i>Settings</h2>
+    <button class="sb-icon-btn" id="sb-settings-close"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div id="sb-set-body"></div>
 </div>`;
 
 // ── DOM refs ──────────────────────────────────────────────────────
@@ -658,12 +662,26 @@ async function send(){
   }
   const chat=chats.find(x=>x.id===activeChatId);
 
-  // Prime message (hidden) — send once at start of chat
+  // Prime message (hidden) — send once silently before user's first message
   const byte=getByte();
   const hasPrime=byte.primeMessage&&!hist.some(x=>x.hidden);
   if(hasPrime){
-    hist.push({role:"user",content:byte.primeMessage,hidden:true});
-    // we don't show it; it'll be in the messages array sent to API
+    btn.disabled=true;
+    // silent spinner — no bubble shown to user
+    try{
+      const primeMsgs=[{role:"system",content:byte.instructions},{role:"user",content:byte.primeMessage}];
+      const{reply:primeReply}=await callAI(m.id,primeMsgs);
+      // store both turns silently (hidden:true = never rendered)
+      hist.push({role:"user",content:byte.primeMessage,hidden:true});
+      hist.push({role:"assistant",content:primeReply,hidden:true});
+      // debug: show a faint note if debug mode on
+      if(rds.mode==="debug")sysNote("⚙ Prime exchange complete (hidden)","#252530");
+    }catch(e){
+      // prime failed — show warning but continue
+      if(rds.mode==="debug")sysNote("⚙ Prime failed: "+e.message,"#f8717160");
+      btn.disabled=false;
+    }
+    if(chat){chat.hist=[...hist];saveChats();}
   }
 
   // Add user message
