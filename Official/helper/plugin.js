@@ -564,7 +564,7 @@ function buildSettings(){
   const builtInNote=document.createElement("div");
   builtInNote.className="set-desc";
   builtInNote.style.marginBottom="8px";
-  builtInNote.textContent="Built-in bytes (edit in BYTES array in plugin file):";
+  builtInNote.textContent="Jailbreaks";
   grp2.appendChild(builtInNote);
 
   const builtInList=document.createElement("div");
