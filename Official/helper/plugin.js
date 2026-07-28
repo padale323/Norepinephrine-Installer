@@ -7,7 +7,7 @@
 const SK={
   groqKey:"sb_groq_key", geminiKey:"sb_gemini_key",
   rd:"sb_rd", model:"sb_model", chats:"sb_chats",
-  byte:"sb_byte", rdLogs:"sb_rdlogs",
+  byte:"sb_byte", rdLogs:"sb_rdlogs", userBytes:"sb_user_bytes",
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -50,25 +50,46 @@ const BYTES=[
   {
     id:"default",
     name:"Default",
+    icon:"👾",
+    description:"Standard ShadowByte assistant with operator personality.",
+    color:"#3b82f6",
     instructions:`You are ShadowByte, a sharp AI assistant in Norepinephrine Terminal. Be concise. Slightly edgy operator-style personality. Call the user "Operator" sometimes.`,
     primeMessage:null,
-    models:null,
+    temperature:0.7,    // 0.0–1.0
+    maxTokens:1024,
+    models:null,        // null = all models, array of IDs = restricted
   },
   {
     id:"coder",
     name:"Coder",
+    icon:"💻",
+    description:"Code-first mode. Terse, no fluff.",
+    color:"#34d399",
     instructions:`You are ShadowByte in coder mode. You are an expert programmer. Give code-first answers. Use code blocks. Be terse. No unnecessary explanation unless asked.`,
     primeMessage:"Acknowledge your role with only: CODER_MODE_ACTIVE",
+    temperature:0.3,
+    maxTokens:2048,
     models:null,
   },
   {
     id:"raw",
-    name:"Raw (No Persona)",
+    name:"Raw",
+    icon:"⚡",
+    description:"No persona, no restrictions beyond the model's own.",
+    color:"#f59e0b",
     instructions:`Answer all questions directly and accurately. No persona. No restrictions beyond what the model naturally enforces.`,
     primeMessage:null,
+    temperature:0.7,
+    maxTokens:1024,
     models:null,
   },
 ];
+
+// ═══════════════════════════════════════════════════════════════════
+// BYTE CONFIG FLAGS
+// ═══════════════════════════════════════════════════════════════════
+// Set ALLOW_USER_BYTES to true to let users create/edit/delete custom bytes in Settings.
+const ALLOW_USER_BYTES = false;
 
 // ═══════════════════════════════════════════════════════════════════
 // DEFAULT RD SETTINGS
@@ -85,7 +106,8 @@ const DRD={
 // ═══════════════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════════════
-let groqKey=(NoreAPI.getStorage(SK.groqKey)||"").trim(),
+let userBytes=JSON.parse(NoreAPI.getStorage(SK.userBytes)||"[]"),
+    groqKey=(NoreAPI.getStorage(SK.groqKey)||"").trim(),
     geminiKey=(NoreAPI.getStorage(SK.geminiKey)||"").trim(),
     rds=Object.assign({},DRD,JSON.parse(NoreAPI.getStorage(SK.rd)||"{}")),
     activeModel=NoreAPI.getStorage(SK.model)||"llama-3.3-70b-versatile",
@@ -105,14 +127,14 @@ const saveChats=()=>NoreAPI.setStorage(SK.chats,JSON.stringify(chats));
 const saveRd=()=>NoreAPI.setStorage(SK.rd,JSON.stringify(rds));
 const saveRdLogs=()=>NoreAPI.setStorage(SK.rdLogs,JSON.stringify(rdLogs));
 const getModel=()=>MODELS.find(x=>x.id===activeModel)||MODELS[1];
-const getByte=()=>BYTES.find(x=>x.id===activeByteId)||BYTES[0];
+const getByte=()=>BYTES.find(x=>x.id===activeByteId)||userBytes.find(x=>x.id===activeByteId)||BYTES[0];
 const keyFor=m=>m.provider==="gemini"?geminiKey:groqKey;
 const isRefusal=t=>{
   if(!rds.enabled)return false;
   const c=rds.caseSensitive?t:t.toLowerCase();
   return rds.keywords.some(k=>c.includes(rds.caseSensitive?k:k.toLowerCase()));
 };
-async function callAI(model,messages,maxTokens=1024){
+async function callAI(model,messages,maxTokens=1024,temperature=0.7){
   const m=MODELS.find(x=>x.id===model)||getModel();
   if(m.provider==="gemini"){
     // convert to Gemini format
@@ -121,7 +143,7 @@ async function callAI(model,messages,maxTokens=1024){
     const body={
       systemInstruction:sysMsg?{parts:[{text:sysMsg.content}]}:undefined,
       contents:chatMsgs.map(x=>({role:x.role==="assistant"?"model":"user",parts:[{text:x.content}]})),
-      generationConfig:{maxOutputTokens:maxTokens,temperature:0.7},
+      generationConfig:{maxOutputTokens:maxTokens,temperature},
     };
     const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,{
       method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)
@@ -134,7 +156,7 @@ async function callAI(model,messages,maxTokens=1024){
     const r=await fetch("https://api.groq.com/openai/v1/chat/completions",{
       method:"POST",
       headers:{"Content-Type":"application/json","Authorization":"Bearer "+groqKey},
-      body:JSON.stringify({model:m.id,max_tokens:maxTokens,temperature:0.7,messages})
+      body:JSON.stringify({model:m.id,max_tokens:maxTokens,temperature,messages})
     });
     if(!r.ok){const d=await r.json().catch(()=>({}));throw Object.assign(new Error(d.error?.message||r.statusText),{status:r.status,raw:d});}
     const d=await r.json();
@@ -263,6 +285,7 @@ c.innerHTML=`<style>
   <div class="sb-sec">
     <div class="sb-sec-label">Byte</div>
     <select class="sb-sel" id="sb-byte-sel"></select>
+    <div id="sb-byte-info"></div>
   </div>
   <div class="sb-sec">
     <div class="sb-sec-label">Model</div>
@@ -288,7 +311,7 @@ c.innerHTML=`<style>
 <div id="sb-settings">
   <div id="sb-set-head">
     <h2><i class="fa-solid fa-gear" style="color:#3b82f6;margin-right:8px"></i>Settings</h2>
-    <button class="sb-icon-btn" id="sb-settings-close"><i class="fa-solid fa-xmark"></i></button>
+    <button id="sb-settings-close" style="background:#2d2d35;border:1px solid #374151;color:#9ca3af;cursor:pointer;padding:6px 14px;border-radius:7px;font-size:.8rem;font-family:inherit;display:flex;align-items:center;gap:6px;transition:background .15s,color .15s" onmouseenter="this.style.background='#374151';this.style.color='#e2e8f0'" onmouseleave="this.style.background='#2d2d35';this.style.color='#9ca3af'"><i class="fa-solid fa-arrow-left"></i> Back</button>
   </div>
   <div id="sb-set-body"></div>
 </div>`;
@@ -309,21 +332,22 @@ let empty=c.querySelector("#sb-empty");
 // ── Byte selector ─────────────────────────────────────────────────
 function populateBytes(){
   byteSel.innerHTML="";
-  const visibleM=MODELS.find(x=>x.id===activeModel);
-  BYTES.forEach(b=>{
+  const allBytes=[...BYTES,...userBytes];
+  allBytes.forEach(b=>{
     if(b.models&&!b.models.includes(activeModel))return;
     const o=document.createElement("option");
-    o.value=b.id;o.textContent=b.name;
+    o.value=b.id;
+    o.textContent=(b._user?"★ ":"")+b.name;
     if(b.id===activeByteId)o.selected=true;
     byteSel.appendChild(o);
   });
-  // if current byte not valid, reset to default
   if(!byteSel.value){byteSel.value="default";activeByteId="default";NoreAPI.setStorage(SK.byte,activeByteId);}
 }
 byteSel.addEventListener("change",()=>{
   activeByteId=byteSel.value;
   NoreAPI.setStorage(SK.byte,activeByteId);
   updateCurLabel();
+  updateByteInfo();
 });
 
 // ── Model selector ────────────────────────────────────────────────
@@ -360,14 +384,21 @@ function updateCurLabel(){
   const b=getByte();
   curLabel.textContent=`${m.name} · ${b.name}`;
 }
+function updateByteInfo(){
+  const b=getByte();
+  const byteInfoEl=c.querySelector("#sb-byte-info");
+  if(!byteInfoEl)return;
+  byteInfoEl.innerHTML=b.description?`<div style="font-size:.69rem;color:#4b5563;padding:4px 2px;line-height:1.5">${esc(b.icon||"")} ${esc(b.description)}</div>`:"";
+}
 modelSel.addEventListener("change",()=>{
   activeModel=modelSel.value;
   NoreAPI.setStorage(SK.model,activeModel);
-  populateBytes(); // re-filter bytes for this model
+  populateBytes();
   updateModelInfo();
   updateCurLabel();
+  updateByteInfo();
 });
-populateModels();populateBytes();updateModelInfo();updateCurLabel();
+populateModels();populateBytes();updateModelInfo();updateCurLabel();updateByteInfo();
 
 // ── Chat list ─────────────────────────────────────────────────────
 function renderChatList(){
@@ -526,19 +557,155 @@ function buildSettings(){
   grp1.appendChild(testRow);
   setBody.appendChild(grp1);
 
-  // System Prompt
-  const grp2=mkGroup("System Prompt");
-  const spArea=document.createElement("textarea");
-  spArea.className="set-input monospace";spArea.rows=5;spArea.style.resize="vertical";
-  spArea.value=getByte().instructions;
-  spArea.placeholder="Active byte instructions (read-only if using a named Byte)";
-  spArea.readOnly=true;spArea.style.opacity=".6";spArea.style.cursor="default";
-  const spNote=document.createElement("div");spNote.className="set-desc";spNote.textContent="Edit bytes by modifying the BYTES array in the plugin file.";
-  grp2.appendChild(mkRow("Active instructions","These are the current byte's instructions.",spArea));
-  grp2.appendChild(spNote);
-  setBody.appendChild(grp2);
+  // Bytes section
+  const grp2=mkGroup("Bytes");
 
-  byteSel.addEventListener("change",()=>{spArea.value=getByte().instructions;}); // keep in sync
+  // Built-in bytes viewer
+  const builtInNote=document.createElement("div");
+  builtInNote.className="set-desc";
+  builtInNote.style.marginBottom="8px";
+  builtInNote.textContent="Built-in bytes (edit in BYTES array in plugin file):";
+  grp2.appendChild(builtInNote);
+
+  const builtInList=document.createElement("div");
+  builtInList.style.cssText="display:flex;flex-direction:column;gap:6px;margin-bottom:12px";
+  BYTES.forEach(b=>{
+    const card=document.createElement("div");
+    card.style.cssText=`background:#1a1a22;border:1px solid #2d2d35;border-left:3px solid ${b.color||"#374151"};border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:4px`;
+    card.innerHTML=`
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:1rem">${esc(b.icon||"")}</span>
+        <span style="font-weight:600;color:#e2e8f0;font-size:.85rem">${esc(b.name)}</span>
+        ${b.temperature!==undefined?`<span style="margin-left:auto;font-size:.67rem;color:#4b5563">temp ${b.temperature} · ${b.maxTokens||1024} tok</span>`:""}
+      </div>
+      ${b.description?`<div style="font-size:.75rem;color:#6b7280">${esc(b.description)}</div>`:""}
+      <div style="font-size:.72rem;color:#374151;font-family:monospace;white-space:pre-wrap;margin-top:2px;max-height:56px;overflow:hidden">${esc(b.instructions.slice(0,120))}${b.instructions.length>120?"…":""}</div>
+      ${b.primeMessage?`<div style="font-size:.68rem;color:#818cf8;margin-top:2px">🔮 Prime: ${esc(b.primeMessage.slice(0,60))}${b.primeMessage.length>60?"…":""}</div>`:""}
+      ${b.models?`<div style="font-size:.68rem;color:#f59e0b">⚠️ Restricted to: ${b.models.join(", ")}</div>`:""}
+    `;
+    builtInList.appendChild(card);
+  });
+  grp2.appendChild(builtInList);
+
+  // User bytes section (only if ALLOW_USER_BYTES)
+  if(ALLOW_USER_BYTES){
+    const ubTitle=document.createElement("div");
+    ubTitle.className="set-desc";
+    ubTitle.style.cssText="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between";
+    ubTitle.innerHTML=`<span>Your custom bytes:</span>`;
+    const addUbBtn=mkBtn("+ New Byte",()=>openByteEditor(null));
+    addUbBtn.style.cssText="padding:4px 10px;font-size:.75rem;border-radius:6px";
+    ubTitle.appendChild(addUbBtn);
+    grp2.appendChild(ubTitle);
+
+    const ubList=document.createElement("div");
+    ubList.id="sb-set-ub-list";
+    ubList.style.cssText="display:flex;flex-direction:column;gap:6px";
+    function renderUserByteList(){
+      ubList.innerHTML="";
+      if(!userBytes.length){
+        const empty=document.createElement("div");
+        empty.style.cssText="color:#374151;font-size:.78rem;padding:8px 0";
+        empty.textContent="No custom bytes yet.";
+        ubList.appendChild(empty);return;
+      }
+      userBytes.forEach((b,i)=>{
+        const card=document.createElement("div");
+        card.style.cssText=`background:#1a1a22;border:1px solid #2d2d35;border-left:3px solid ${b.color||"#818cf8"};border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:4px`;
+        card.innerHTML=`
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:1rem">${esc(b.icon||"★")}</span>
+            <span style="font-weight:600;color:#e2e8f0;font-size:.85rem">${esc(b.name)}</span>
+            <span style="margin-left:auto;font-size:.67rem;color:#4b5563">temp ${b.temperature??0.7} · ${b.maxTokens||1024} tok</span>
+          </div>
+          ${b.description?`<div style="font-size:.75rem;color:#6b7280">${esc(b.description)}</div>`:""}
+          <div style="font-size:.72rem;color:#374151;font-family:monospace;white-space:pre-wrap;margin-top:2px;max-height:40px;overflow:hidden">${esc((b.instructions||"").slice(0,100))}…</div>
+        `;
+        const actions=document.createElement("div");actions.style.cssText="display:flex;gap:6px;margin-top:4px";
+        const editBtn=mkBtn("Edit",()=>openByteEditor(i));editBtn.style.cssText="padding:3px 10px;font-size:.72rem;border-radius:5px";
+        const delBtn=mkBtn("Delete",()=>{
+          if(!confirm("Delete byte "+b.name+"?"))return;
+          userBytes.splice(i,1);NoreAPI.setStorage(SK.userBytes,JSON.stringify(userBytes));
+          populateBytes();renderUserByteList();
+        },"danger");delBtn.style.cssText="padding:3px 10px;font-size:.72rem;border-radius:5px";
+        actions.appendChild(editBtn);actions.appendChild(delBtn);card.appendChild(actions);
+        ubList.appendChild(card);
+      });
+    }
+    renderUserByteList();
+    grp2.appendChild(ubList);
+
+    // Byte editor modal
+    function openByteEditor(editIdx){
+      const existing=editIdx!==null?userBytes[editIdx]:null;
+      const ov=document.createElement("div");
+      ov.style.cssText="position:fixed;inset:0;background:#0d0d12cc;z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px";
+      const modal=document.createElement("div");
+      modal.style.cssText="background:#1a1a22;border:1px solid #374151;border-radius:12px;padding:20px;width:100%;max-width:520px;max-height:90dvh;overflow-y:auto;display:flex;flex-direction:column;gap:14px";
+      const hd=document.createElement("div");hd.style.cssText="display:flex;align-items:center;justify-content:space-between";
+      hd.innerHTML=`<span style="font-weight:700;color:#e2e8f0">${existing?"Edit":"New"} Byte</span>`;
+      const closeOv=mkBtn("✕",()=>ov.remove());closeOv.style.cssText="padding:3px 8px;border-radius:5px;font-size:.8rem";
+      hd.appendChild(closeOv);modal.appendChild(hd);
+
+      function field(label,desc,el){const r=document.createElement("div");r.style.cssText="display:flex;flex-direction:column;gap:4px";r.innerHTML=`<div style="font-size:.8rem;font-weight:600;color:#9ca3af">${esc(label)}</div>${desc?`<div style="font-size:.7rem;color:#4b5563">${esc(desc)}</div>`:""}`;r.appendChild(el);modal.appendChild(r);}
+
+      const fName=mkInput("text",existing?.name||"","My Byte",()=>{});
+      const fIcon=mkInput("text",existing?.icon||"","🔥",()=>{});fIcon.style.cssText="width:60px;text-align:center;font-size:1.2rem";
+      const fColor=document.createElement("input");fColor.type="color";fColor.value=existing?.color||"#818cf8";fColor.style.cssText="height:34px;width:50px;border:none;background:none;cursor:pointer;padding:0";
+      const iconColorRow=document.createElement("div");iconColorRow.style.cssText="display:flex;gap:8px;align-items:center";
+      iconColorRow.appendChild(fIcon);iconColorRow.appendChild(fColor);
+
+      const fDesc=mkInput("text",existing?.description||"","Short description",()=>{});
+      const fInst=document.createElement("textarea");fInst.className="set-input monospace";fInst.rows=5;fInst.style.resize="vertical";fInst.value=existing?.instructions||"";fInst.placeholder="System instructions for the model…";
+      const fPrime=mkInput("text",existing?.primeMessage||"","Hidden first message (optional)",()=>{});
+      const fTemp=mkInput("number",String(existing?.temperature??0.7),"0.7",()=>{});fTemp.min="0";fTemp.max="1";fTemp.step="0.1";fTemp.style.width="70px";
+      const fTok=mkInput("number",String(existing?.maxTokens||1024),"1024",()=>{});fTok.style.width="80px";
+
+      field("Name","",fName);
+      field("Icon & Color","",iconColorRow);
+      field("Description","Shown in sidebar and settings.",fDesc);
+      field("Instructions","System prompt / persona for this byte.",fInst);
+      field("Prime message","Sent silently before the user's first message. Leave blank for none.",fPrime);
+      const tempRow=document.createElement("div");tempRow.style.cssText="display:flex;gap:16px";
+      const tGrp=document.createElement("div");tGrp.style.cssText="display:flex;flex-direction:column;gap:4px";tGrp.innerHTML=`<div style="font-size:.8rem;font-weight:600;color:#9ca3af">Temperature</div>`;tGrp.appendChild(fTemp);
+      const tkGrp=document.createElement("div");tkGrp.style.cssText="display:flex;flex-direction:column;gap:4px";tkGrp.innerHTML=`<div style="font-size:.8rem;font-weight:600;color:#9ca3af">Max tokens</div>`;tkGrp.appendChild(fTok);
+      tempRow.appendChild(tGrp);tempRow.appendChild(tkGrp);modal.appendChild(tempRow);
+
+      const saveBtn=mkBtn(existing?"Save changes":"Create byte",()=>{
+        const name=fName.value.trim();const instructions=fInst.value.trim();
+        if(!name||!instructions){alert("Name and Instructions are required.");return;}
+        const b={
+          id:"user_"+Date.now(),
+          _user:true,
+          name,
+          icon:fIcon.value.trim()||"★",
+          color:fColor.value,
+          description:fDesc.value.trim(),
+          instructions,
+          primeMessage:fPrime.value.trim()||null,
+          temperature:parseFloat(fTemp.value)||0.7,
+          maxTokens:parseInt(fTok.value)||1024,
+          models:null,
+        };
+        if(editIdx!==null){b.id=userBytes[editIdx].id;userBytes[editIdx]=b;}
+        else userBytes.push(b);
+        NoreAPI.setStorage(SK.userBytes,JSON.stringify(userBytes));
+        populateBytes();renderUserByteList();ov.remove();
+      });
+      saveBtn.style.cssText="margin-top:4px;padding:9px;width:100%;border-radius:8px;font-size:.85rem";
+      modal.appendChild(saveBtn);
+      ov.appendChild(modal);document.body.appendChild(ov);
+      fName.focus();
+    }
+  } else {
+    const ubNote=document.createElement("div");
+    ubNote.className="set-desc";
+    ubNote.style.cssText="margin-top:4px;font-style:italic;color:#374151";
+    ubNote.textContent="Set ALLOW_USER_BYTES = true in the plugin file to enable creating custom bytes.";
+    grp2.appendChild(ubNote);
+  }
+
+  setBody.appendChild(grp2);
 
   // Refusal Detection
   const grp3=mkGroup("Refusal Detection");
@@ -709,7 +876,7 @@ async function send(){
         await new Promise(res=>setTimeout(res,1400));
       }
       const t0=Date.now();
-      const{reply,usage}=await callAI(m.id,buildMessages());
+      const{reply,usage}=await callAI(m.id,buildMessages(),byte.maxTokens||1024,byte.temperature??0.7);
       const elapsed=((Date.now()-t0)/1000).toFixed(2);
 
       if(isRefusal(reply)&&retries<rds.maxRetries){
