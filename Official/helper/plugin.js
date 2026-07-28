@@ -283,7 +283,7 @@ c.innerHTML=`<style>
   </div>
   <div id="sb-chats"></div>
   <div class="sb-sec">
-    <div class="sb-sec-label">Byte</div>
+    <div class="sb-sec-label">Jailbreak</div>
     <select class="sb-sel" id="sb-byte-sel"></select>
     <div id="sb-byte-info"></div>
   </div>
@@ -294,7 +294,7 @@ c.innerHTML=`<style>
   </div>
 </aside>
 <main id="sb-main">
-  <div id="sb-msgs"><div id="sb-empty"><i class="fa-solid fa-ghost"></i><h2>Start chatting</h2><p>Pick a byte and model, then send a message.</p></div></div>
+  <div id="sb-msgs"><div id="sb-empty"><i class="fa-solid fa-ghost"></i><h2>Start chatting</h2><p>Pick a jailbreak and model, then send a message.</p></div></div>
   <div id="sb-wrap">
     <div id="sb-box">
       <textarea id="sb-ta" placeholder="Message Shadow Byte…" rows="2" oninput="this.style.height='';this.style.height=Math.min(this.scrollHeight,200)+'px'"></textarea>
@@ -701,7 +701,7 @@ function buildSettings(){
     const ubNote=document.createElement("div");
     ubNote.className="set-desc";
     ubNote.style.cssText="margin-top:4px;font-style:italic;color:#374151";
-    ubNote.textContent="Set ALLOW_USER_BYTES = true in the plugin file to enable creating custom bytes.";
+    ubNote.textContent="";
     grp2.appendChild(ubNote);
   }
 
