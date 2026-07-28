@@ -57,7 +57,7 @@ const BYTES=[
     primeMessage:null,
     temperature:0.7,    // 0.0–1.0
     maxTokens:1024,
-    models: ["llama-3.1-8b-instant", "llama-3.3-70b-versatile"]    // null = all models, array of IDs = restricted
+    models: ["llama-3.1-8b-instant", "llama-3.3-70b-versatile"],    // null = all models, array of IDs = restricted
   },
   {
     id:"shadow2",
