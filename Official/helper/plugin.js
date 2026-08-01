@@ -1,1 +1,1 @@
-"im not turning this on until my friend gets on the flipping call"
+print("my friend is not on discord and i need him to get on because there is an emergency so i am not re-adding the plugin until then :)");
